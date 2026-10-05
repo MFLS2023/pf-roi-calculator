@@ -32,9 +32,9 @@
 
 ## 界面截图
 
-直接跑起来看：`npm run dev`、打开在线版本，或双击
-`standalone/PF-ROI-Calculator.standalone.html`。当前主题是上文介绍的暗色
-「终端账本」风格；截图将随下一个 tag 发布时更新。
+| 桌面端（浅色） | 桌面端（深色） | 手机端 |
+| --- | --- | --- |
+| ![桌面端](./docs/screenshot-desktop.png) | ![深色](./docs/screenshot-dark.png) | ![手机端](./docs/screenshot-mobile.png) |
 
 ---
 

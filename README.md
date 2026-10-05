@@ -36,10 +36,9 @@ network access at runtime. One runtime dependency, total.
 
 ## Screenshots
 
-See it live: run `npm run dev`, open the hosted build, or double-click
-`standalone/PF-ROI-Calculator.standalone.html`. The current theme is the
-dark-first "terminal ledger" look shown above; screenshots will return with
-the next tagged release.
+| Desktop (light) | Desktop (dark) | Mobile |
+| --- | --- | --- |
+| ![Desktop](./docs/screenshot-desktop.png) | ![Dark](./docs/screenshot-dark.png) | ![Mobile](./docs/screenshot-mobile.png) |
 
 ---
 
