@@ -7,23 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **P&L colours now follow the international convention** (green up / red down).
+  The previous Chinese-market palette (红涨绿跌) and its in-app legend are gone;
+  the exported share image was switched over too, so both surfaces agree.
+- **The scenario comparison panel moved into the results column**, directly under
+  "export share image". The whole tool now fits inside a 900px-tall viewport
+  without scrolling on desktop.
+- **Status colours are no longer borrowed from the P&L palette.** New `--success`
+  / `--danger` tokens drive toasts, invalid fields and the delete button, so
+  flipping the P&L convention can never silently recolour a status message.
+- **The preset reference note now survives manual edits.** It is driven by a new
+  `presetOrigin` field and gains an "inputs modified" badge, instead of vanishing
+  on the first keystroke — exactly when the caveats matter most.
+- **The footer acknowledgement line was removed** from the app; the credit lives
+  in the READMEs only.
+
+### Added
+
+- **GitHub shortcut in the header** — the repository handle and mark, linking to
+  `github.com/MFLS2023/pf-roi-calculator`.
+
+### Fixed
+
+- **Extreme inputs no longer render exponential notation.** `toFixed()` switches
+  to exponential form at 1e21, which used to leak 21-character strings such as
+  `9.999999999999985e+89` into ~90px metric tiles. Large magnitudes now use
+  compact suffixes (`12.0M`, `4.90T`) and fall back to a short `1.0e+45`; output
+  width is bounded and covered by tests.
+- **Out-of-range input is no longer silently ignored.** Typing `-50` into a
+  `min="0"` field used to leave the box showing `-50` while every metric was
+  computed from `0`. The field is now flagged while typing and snapped to the
+  nearest legal value on blur, so the box always shows what is being computed.
+- **Choosing "custom" in the preset dropdown no longer desynchronises the UI** —
+  it used to leave the dropdown reading "custom" while the note still described
+  the previous firm.
+- **`AppState.inputs` and `AppState.result.inputs` can no longer disagree** — all
+  input paths funnel through a single sanitising `commit()`.
+- Removed dead API (`peekName`, `focusName`, `focusFirst`) and a stale comment
+  referring to the long-gone `app.ts`.
+
+## [2.0.0] — 2026-10-04
+
 ### Added
 
 - **Original "terminal ledger" design language** — dark-first trading-terminal
   theme (deep blue-black surfaces, amber accent, sharp radii, mono numerals,
   subtle grid backdrop) with a warm-paper light mode. P&L colours follow the
-  Chinese market convention (红涨绿跌): gains are red, losses are green, with
-  an in-app legend for international users. The exported share image adopts the
-  same palette.
+  international convention (green up / red down). The exported share image
+  adopts the same palette.
 - **FundedNext Futures presets** — `Rapid Pro 25K` and `Flex 50K`, verified
   against the official rules pages and real community cash-outs (2026-10).
   These follow the community "averaging convention": because FundedNext's 40%
   consistency rule forces at least 3 days, the profit fields hold the per-day
   share of the target (e.g. 800÷3≈267) with `days = 3`, which reproduces the
   numbers taught in community material (Rapid 25K → ~5.08 accounts, ~+52% ROI).
-- **Attribution** — an Acknowledgements section (both READMEs) and an in-app
-  footer link crediting [Z-shen (Bilibili)](https://space.bilibili.com/101513971)
-  for the inspiration and the prop-firm rule walkthroughs behind the presets.
+- **Attribution** — an Acknowledgements section in both READMEs crediting
+  [Z-shen (Bilibili)](https://space.bilibili.com/101513971) for the inspiration
+  and the prop-firm rule walkthroughs behind the presets.
 
 ### Changed
 

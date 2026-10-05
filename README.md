@@ -142,9 +142,8 @@ ROI = (actualPayout − totalCost) / totalCost × 100%
 | Total cost | `$2276` |
 | **ROI** | **`-20.92%`** |
 
-Negative expectancy is a *loss* — the UI colours follow the Chinese market
-convention (红涨绿跌): **gains are red, losses are green**. An in-app legend
-spells this out, and English users get a translated hint.
+Negative expectancy is a *loss* — the UI colours follow the international
+convention: **gains are green, losses are red**.
 
 ---
 
@@ -230,8 +229,8 @@ Adding a firm is a one-object change in `src/data/presets.ts` — see
 - **Share image export** — 1080×1350 PNG with a QR code, drawn on-device with
   Canvas. No `html2canvas`, no server.
 - **Dark mode** — dark-first "terminal ledger" theme with a warm-paper light mode.
-- **CN market colours** — gains are red, losses are green (红涨绿跌), with an
-  in-app legend for international users.
+- **Conventional P&L colours** — gains are green, losses are red, matching every
+  other trading tool.
 - **Reduced motion** — honours the OS `prefers-reduced-motion` setting.
 - **Deep links** — `?preset=ftmo-100k-1step` loads a preset directly.
 - **Zero-configurable-failure** — every input path is sanitised; no combination of
