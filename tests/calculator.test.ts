@@ -212,6 +212,60 @@ describe('formatter', () => {
     expect(formatSignedPercent(Number.NaN)).toBe(PLACEHOLDER);
   });
 
+  /**
+   * Regression guard for the "exponential notation leaks into the UI" defect.
+   *
+   * `Number.prototype.toFixed()` silently switches to exponential form at 1e21,
+   * so `(1e21).toFixed(2)` is the 6-character string `"1e+21"`, and the naive
+   * implementation emitted 21-character monsters such as
+   * `9.999999999999985e+89` into metric tiles that are only ~90px wide.
+   */
+  describe('never emits an unbounded string', () => {
+    // Longest legitimate output is `999.0T` (6) or `1.0e+45` (7); `1e300` needs 8.
+    const MAX_WIDTH = 8;
+
+    const cases = [1e7, 1e9, 1e12, 9.99e14, 1e15, 1e21, 9.999999999999993e44, 1e300];
+
+    it.each(cases)('formatCount(%p) stays within a fixed width', (value) => {
+      expect(formatCount(value, 2).length).toBeLessThanOrEqual(MAX_WIDTH);
+    });
+
+    it.each(cases)('formatMoney(%p) stays within a fixed width', (value) => {
+      expect(formatMoney(value).length).toBeLessThanOrEqual(MAX_WIDTH + 1); // + `$`
+    });
+
+    it('never leaks a long mantissa, which is what actually broke the tiles', () => {
+      // The old implementation produced 21-character monsters like this.
+      const monster = formatCount(9.999999999999993e44, 2);
+      expect(monster).toBe('1.0e+45');
+      expect(monster.length).toBeLessThanOrEqual(MAX_WIDTH);
+      // General shape guard: one digit, a decimal point, one digit, then e±NN.
+      expect(monster).toMatch(/^-?\d\.\de[+-]\d+$/i);
+    });
+
+    it('uses suffixes for the readable range', () => {
+      expect(formatCount(1.2e6, 2)).toBe('1200000.00'); // still exact below 1e7
+      expect(formatCount(1.2e7, 2)).toBe('12.0M'); // 12 < 100 -> 1 decimal
+      expect(formatCount(1.2e9, 2)).toBe('1.20B'); // 1.2 < 10 -> 2 decimals
+      expect(formatCount(4.9e12, 2)).toBe('4.90T');
+      expect(formatCount(9.99e14, 2)).toBe('999T'); // >= 100 -> 0 decimals
+    });
+
+    it('keeps everyday money formatting byte-identical to the design', () => {
+      // The abbreviation layer must not disturb the reference values.
+      expect(formatMoney(1531.25)).toBe('$1531');
+      expect(formatMoney(2276.25)).toBe('$2276');
+      expect(formatMoney(745)).toBe('$745');
+      expect(formatMoney(1800)).toBe('$1800');
+    });
+
+    it('abbreviates percentages on the percentage, not the ratio', () => {
+      expect(formatPercent(0.16, 2)).toBe('16.00%'); // unaffected
+      expect(formatPercent(1e7, 2)).toBe('1.00B%'); // 1e7 ratio == 1e9 percent
+      expect(formatPercent(1e7, 2).length).toBeLessThanOrEqual(MAX_WIDTH + 1);
+    });
+  });
+
   it('classifies tone for the colour rules', () => {
     expect(toneOf(12.5)).toBe('positive');
     expect(toneOf(-0.01)).toBe('negative');
