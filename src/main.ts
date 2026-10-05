@@ -195,10 +195,9 @@ function applyTranslations(): void {
 
   const exportBtn = must<HTMLButtonElement>('#export-btn');
   exportBtn.innerHTML = `${icon('download', { size: 14, strokeWidth: 2.2 })}<span>${dict.exportImage}</span>`;
-  const saveBtn = must<HTMLButtonElement>('#save-btn');
-  saveBtn.innerHTML = `${icon('plus', { size: 14, strokeWidth: 2.6 })}<span>${dict.compareSave}</span>`;
   const installBtn = must<HTMLButtonElement>('#install-btn');
   installBtn.textContent = dict.installApp;
+  must<HTMLButtonElement>('#mobile-roi-bar').setAttribute('aria-label', dict.barAriaLabel);
 }
 
 onLocaleChange(() => {
@@ -211,6 +210,8 @@ const roiValue = must<HTMLElement>('#roi-value');
 const roiFoot = must<HTMLElement>('#roi-foot');
 const roiNote = must<HTMLElement>('#roi-note');
 const roiVerdict = must<HTMLElement>('#roi-verdict');
+const barRoi = must<HTMLElement>('#bar-roi');
+const barCost = must<HTMLElement>('#bar-cost');
 
 function renderResult(next: CalculatorResult): void {
   const dict = t();
@@ -241,6 +242,12 @@ function renderResult(next: CalculatorResult): void {
   }
 
   roiFoot.textContent = `${dict.roiActualPayout} ${formatMoney(next.inputs.actualPayout)}`;
+
+  // Mirror the two headline numbers onto the mobile bottom bar.
+  setText(barRoi, next.isViable ? formatSignedPercent(next.roi, 2) : dict.placeholder, false);
+  barRoi.classList.toggle('is-positive', next.isViable && toneOf(next.roi) === 'positive');
+  barRoi.classList.toggle('is-negative', next.isViable && toneOf(next.roi) === 'negative');
+  setText(barCost, formatMoney(next.totalCost), false);
 }
 
 function renderScenarios(scenarios: readonly SavedScenario[]): void {
@@ -324,10 +331,7 @@ must<HTMLButtonElement>('#export-btn').addEventListener('click', async () => {
   }
 });
 
-// Honours a name typed into the comparison panel; falls back to an auto name.
-must<HTMLButtonElement>('#save-btn').addEventListener('click', () => {
-  saveFromInput(compare.peekName());
-});
+// The comparison panel's own save row is the single save entry point.
 
 /** Prefer the live URL (self-hosted copies advertise themselves), else the repo. */
 function shareUrl(): string {
@@ -395,6 +399,15 @@ installBtn.addEventListener('click', async () => {
 window.addEventListener('appinstalled', () => {
   installBtn.classList.add('is-hidden');
   toast(t().offlineReady, 'success');
+});
+
+// Mobile bottom bar: tap to jump to the full results area.
+must<HTMLButtonElement>('#mobile-roi-bar').addEventListener('click', () => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  must<HTMLElement>('#roi-card').scrollIntoView({
+    behavior: reduceMotion ? 'auto' : 'smooth',
+    block: 'start',
+  });
 });
 
 /* ------------------------------------------------------------------ bootstrap */

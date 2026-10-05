@@ -48,7 +48,6 @@ export const en: Dict = {
   fieldHintActualPayout: 'Cash you actually receive after the profit split, per successful account',
 
   /* ---------- actions ---------- */
-  calculate: 'Calculate ROI',
   exportImage: 'Export share image',
   exporting: 'Rendering…',
   exportDone: 'Share image saved',
@@ -106,4 +105,5 @@ export const en: Dict = {
 
   /* ---------- misc ---------- */
   placeholder: '--',
+  barAriaLabel: 'Jump to the full results',
 };

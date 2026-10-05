@@ -52,7 +52,6 @@ export const zhCN = {
   fieldHintActualPayout: '扣除平台分成后，单个成功账号实际到手的金额',
 
   /* ---------- actions ---------- */
-  calculate: '计算 ROI',
   exportImage: '导出分享图',
   exporting: '正在生成…',
   exportDone: '分享图已保存',
@@ -110,6 +109,7 @@ export const zhCN = {
 
   /* ---------- misc ---------- */
   placeholder: '--',
+  barAriaLabel: '跳转到完整结果区',
 } as const satisfies Record<string, string>;
 
 /** Canonical dictionary type — every locale file must satisfy it. */

@@ -103,9 +103,8 @@ export function createMetrics(): MetricsController {
     titleNodes.set(spec.id, title);
   }
 
-  // Ninth cell keeps the 3-column grid visually balanced.
-  root.append(h('div', { class: 'metric metric--placeholder', 'aria-hidden': 'true' }));
-
+  // Eight metrics fill a 4-column (desktop) / 2-column (mobile) grid exactly —
+  // no filler cell needed.
   return {
     root,
 

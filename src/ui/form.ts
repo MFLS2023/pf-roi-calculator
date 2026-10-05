@@ -2,8 +2,7 @@ import { FORM_GROUPS, type FieldSpec, type GroupSpec } from '../data/form-schema
 import { DEFAULT_INPUTS } from '../domain/constants';
 import type { CalculatorInputs } from '../domain/types';
 import { t } from '../i18n';
-import { h, must } from './dom';
-import { icon } from './icons';
+import { h } from './dom';
 
 /**
  * The input form, generated from {@link FORM_GROUPS}.
@@ -101,16 +100,6 @@ export function createForm(options: {
 
   FORM_GROUPS.forEach((group, index) => root.append(buildGroup(group, index)));
 
-  // The primary action lives inside the form pane, directly under the fields.
-  const calcButton = h('button', {
-    class: 'btn btn--primary',
-    type: 'button',
-    id: 'calc-btn',
-    html: `${icon('bolt', { size: 16, strokeWidth: 2.4 })}<span>${dict.calculate}</span>`,
-  });
-  calcButton.addEventListener('click', options.onSubmit);
-  root.append(calcButton);
-
   return {
     root,
 
@@ -140,9 +129,6 @@ export function createForm(options: {
         // Rebuild the label text while keeping the unit span in place.
         ref.label.firstChild?.replaceWith(document.createTextNode(`${next[ref.spec.labelKey]} `));
       }
-      const button = must<HTMLButtonElement>('#calc-btn', root);
-      const span = button.querySelector('span');
-      if (span) span.textContent = next.calculate;
     },
 
     focusFirst(): void {

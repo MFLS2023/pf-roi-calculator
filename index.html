@@ -70,8 +70,6 @@
         <section class="pane pane--form" id="form-pane" aria-label="参数输入"></section>
 
         <section class="pane pane--results">
-          <div id="metrics-host"></div>
-
           <div class="roi" id="roi-card">
             <div class="roi__title">
               <span id="roi-icon" aria-hidden="true"></span>
@@ -89,15 +87,17 @@
             <div class="roi__legend" data-i18n="roiLegend">红涨绿跌 · 遵循国内行情配色习惯</div>
           </div>
 
+          <div id="metrics-host"></div>
+
           <div class="actions">
             <button class="btn btn--secondary" type="button" id="export-btn"></button>
-            <button class="btn btn--secondary" type="button" id="save-btn"></button>
           </div>
         </section>
-      </div>
 
-      <!-- ================= comparison ================= -->
-      <div id="compare-host"></div>
+        <!-- Comparison lives under the LEFT column on desktop (grid row 2),
+             so the sticky results pane has room to follow the scroll. -->
+        <div id="compare-host"></div>
+      </div>
 
       <!-- ================= footer ================= -->
       <footer class="app__footer">
@@ -108,6 +108,26 @@
         </p>
       </footer>
     </div>
+
+    <!-- Mobile-only compact bar: headline ROI + total cost, taps to results. -->
+    <button
+      class="mobile-roi-bar"
+      id="mobile-roi-bar"
+      type="button"
+      aria-label="跳转到完整结果区"
+    >
+      <span class="mobile-roi-bar__cell">
+        <span class="mobile-roi-bar__label" data-i18n="roiTitle">投产回报率</span>
+        <span class="mobile-roi-bar__value is-neutral" id="bar-roi">--</span>
+      </span>
+      <span class="mobile-roi-bar__cell">
+        <span class="mobile-roi-bar__label" data-i18n="metricTotalCost">总投入成本</span>
+        <span class="mobile-roi-bar__value" id="bar-cost">$0</span>
+      </span>
+      <span class="mobile-roi-bar__chevron" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>
+      </span>
+    </button>
 
     <div id="sr-live" class="sr-only" role="status" aria-live="polite"></div>
 

@@ -118,7 +118,6 @@ button {
 /* ==========================================================================
    Header
    ========================================================================== */
-
 .app__header {
   display: flex;
   align-items: center;
@@ -213,12 +212,37 @@ button {
 @media (min-width: 1024px) {
   .app__body {
     grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+    grid-template-rows: auto auto;
     gap: 22px;
   }
 
+  /* Left column: inputs, then the comparison panel underneath — the left
+     column ends up clearly taller than the results pane, giving the sticky
+     pane a long scroll distance to follow. */
+  .pane--form {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #compare-host {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+  }
+
   .pane--results {
-    position: sticky;
-    top: 24px;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+  }
+
+  /* Sticky only on tall-enough viewports; on short screens the pane stays in
+     normal flow so buttons are never clipped. */
+  @media (min-height: 800px) {
+    .pane--results {
+      position: sticky;
+      top: 24px;
+    }
   }
 }
 

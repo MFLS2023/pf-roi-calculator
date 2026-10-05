@@ -290,7 +290,8 @@
 
 .select--lang {
   min-width: 104px;
-  padding-left: 12px;
+  /* Wide enough to clear the globe icon (left 10px + 13px wide). */
+  padding-left: 28px;
 }
 
 /* ==========================================================================
@@ -299,14 +300,15 @@
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 9px;
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 640px) {
   .metrics {
-    margin-top: 0;
+    /* 8 metrics × 4 columns = a full grid, no filler cell. */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -327,13 +329,6 @@
   border-color: var(--border);
 }
 
-.metric--placeholder {
-  background: transparent;
-  border-style: dashed;
-  border-color: var(--border-soft);
-  border-left: 3px solid var(--border-soft);
-}
-
 .metric__head {
   display: flex;
   align-items: center;
@@ -348,9 +343,10 @@
 }
 
 .metric__title {
-  font-size: 11px;
+  /* ≥12px keeps the labels readable and WCAG-AA against the tile surface. */
+  font-size: 12px;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-label);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -359,7 +355,7 @@
 .metric__value {
   font-family: var(--font-mono);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.2px;
   font-variant-numeric: tabular-nums;
@@ -427,7 +423,7 @@
 .roi__value {
   font-family: var(--font-mono);
   font-size: 38px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
   letter-spacing: -1px;
   font-variant-numeric: tabular-nums;
@@ -729,6 +725,19 @@
   max-width: min(92vw, 420px);
 }
 
+/* On phones the stack sits above the fixed ROI bar so it never covers content. */
+@media (max-width: 1023.98px) {
+  .toast-stack {
+    bottom: calc(78px + env(safe-area-inset-bottom));
+    max-width: min(94vw, 360px);
+  }
+
+  .toast {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
 .toast {
   padding: 9px 16px;
   border-radius: var(--radius-field);
@@ -757,6 +766,85 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* ==========================================================================
+   Mobile ROI bar — fixed compact summary, phones only
+   ========================================================================== */
+
+.mobile-roi-bar {
+  display: none;
+}
+
+@media (max-width: 1023.98px) {
+  .mobile-roi-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 40;
+    padding: 9px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.55);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  /* Reserve the bar's height so the page footer is never covered. */
+  body {
+    padding-bottom: calc(78px + env(safe-area-inset-bottom));
+  }
+}
+
+.mobile-roi-bar__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mobile-roi-bar__label {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-roi-bar__value {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+.mobile-roi-bar__value.is-positive {
+  color: var(--positive);
+}
+
+.mobile-roi-bar__value.is-negative {
+  color: var(--negative);
+}
+
+.mobile-roi-bar__chevron {
+  display: flex;
+  margin-left: auto;
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .mobile-roi-bar {
+    display: none !important;
   }
 }
 
