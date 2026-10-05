@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Firm presets corrected against official rules (2026-10)** — the payout phase
+  had been modelled as "N repeated full-target clears" (`payoutDays = 5`), which
+  no firm actually requires. Official pages show payout gates are instead
+  "N non-consecutive winning days with a small daily profit floor" (Apex 50K EOD:
+  5 × $250+; Topstep: 5 × $200+), minimum-balance gates (Apex Safety Net =
+  drawdown + $100), or calendar cycles (FundedNext 21-day option). Presets now
+  model the payout phase as a single attempt (`days = 1`) with verified targets
+  and first-payout caps, carry official source URLs (Apex & FundedNext help
+  centres), and FundedNext's outdated "5 Benchmark Days" description was
+  replaced with the three official payout options. The old mapping overstated
+  the cost dramatically (e.g. Apex showed ~160 accounts / −94% ROI where the
+  official rules imply roughly break-even).
+
 - **Desktop release workflow** — install the `aarch64-apple-darwin` and
   `x86_64-apple-darwin` Rust targets so the macOS universal build can actually
   compile; move the Linux leg to `ubuntu-24.04` (22.04 entered deprecation in

@@ -158,12 +158,20 @@ It is deliberately simple, and the simplifications matter:
 1. **Zero drift, constant risk.** The model assumes your per-day outcome is a fair
    coin with no edge. If you have a genuine statistical edge, the true pass rate is
    higher than this model says — and if you are losing on average, it is lower.
-2. **`days` is a repeated trial, not a calendar gate.** `P = (D/(D+T))^N` assumes
-   you must independently clear the target `N` times in a row. Most firms mean
-   "you must trade on at least N days", which is only a gate. Setting `days` to a
-   firm's minimum trading days is therefore the **pessimistic** reading. Lowering
-   it to `1` gives the optimistic one. This is the single biggest lever on the
-   result — for a preset with a large `payoutDays`, the difference is enormous.
+2. **`days` is a repeated trial — real payout gates are not.** `P = (D/(D+T))^N`
+   assumes you must independently clear the *full* target `N` times in a row.
+   Verified against official rule pages (2026-10), real payout gates are three
+   other shapes: **calendar cycles** (FundedNext 21-day option: no target, no
+   minimum days), **N non-consecutive winning days** with a small daily profit
+   floor (Apex 50K EOD: 5 days ≥ $250 each; Topstep: 5 days ≥ $200 each), and
+   **minimum-balance gates** (Apex Safety Net = drawdown + $100). No firm asks
+   for "N full-target clears", and all of these are strictly easier. Presets
+   therefore model the payout phase as a **single attempt** (`days = 1`) aimed
+   at the realistic minimum-balance target; each preset's note spells out the
+   official rule it abstracts. `days > 1` only remains to approximate
+   multi-phase *evaluations* (e.g. FundedNext Stellar's two sequential targets).
+   This is the single biggest lever on the result — moving payout days from 5
+   to 1 can change the answer by an order of magnitude.
 3. **Two-step evaluations are approximated.** FTMO 2-Step, FundedNext Stellar and
    similar run two phases, while this model has one evaluation phase. Presets keep
    the tighter phase's drawdown and set `days = 2` to compound twice — an
@@ -188,10 +196,10 @@ Each one records the URL it was verified against and the month it was checked.
 | Preset | Market | Cost | Eval D/T/days | Payout D/T/days | Verified | Confidence |
 | --- | --- | --- | --- | --- | --- | --- |
 | Reference example | — | $49 | 1000 / 1500 / 2 | 1000 / 4000 / 1 | 2026-10 | high |
-| Apex Trader Funding 50K (EOD) | futures | $249 | 2000 / 3000 / 1 | 2000 / 2600 / 5 | 2026-09 | medium |
-| Topstep 50K Combine | futures | $49/mo | 2000 / 3000 / 5 | 2000 / 2000 / 5 | 2026-10 | low |
+| Apex Trader Funding 50K (EOD) | futures | $249 | 2000 / 3000 / 1 | 2500 / 2600 / 1 | 2026-10 | medium |
+| Topstep 50K Combine | futures | $49/mo | 2000 / 3000 / 1 | 2000 / 2000 / 1 | 2026-10 | low |
 | FTMO 100K 1-Step | forex | $540 | 10000 / 10000 / 1 | 10000 / 10000 / 1 | 2026-10 | medium |
-| FundedNext Stellar 100K | forex | $550 | 10000 / 8000 / 2 | 10000 / 5000 / 5 | 2026-10 | low |
+| FundedNext Stellar 100K | forex | $550 | 10000 / 8000 / 2 | 10000 / 2000 / 1 | 2026-10 | medium |
 
 Adding a firm is a one-object change in `src/data/presets.ts` — see
 [CONTRIBUTING.md](./CONTRIBUTING.md). There is a dedicated issue template for it.

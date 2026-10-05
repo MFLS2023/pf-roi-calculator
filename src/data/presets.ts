@@ -20,13 +20,20 @@ import type { LocalizedText } from '../i18n/types';
  * compounds the single-stage probability twice. Every approximation is spelled
  * out in the preset's `note` so nobody is misled by a clean-looking number.
  *
- * SECOND CAVEAT — what `days` really means
- * `P = (D/(D+T))^N` treats N as "the trader must independently clear the target
- * N times in a row". Real firms usually mean "you must trade on at least N days",
- * which is a *gate*, not a repeated trial. Setting N to a firm's minimum trading
- * days is therefore the pessimistic reading — and the honest one, since the model
- * has no other knob for it. Presets that are affected say so in their note, and
- * users are free to lower `days` to see the optimistic reading.
+ * SECOND CAVEAT — what payout "days" really mean (verified 2026-10)
+ * `P = (D/(D+T))^N` treats N as "the trader must independently clear the FULL
+ * target N times in a row". Real firms do not ask for that. Verified against
+ * official pages, payout gates come in three shapes:
+ *   1. Calendar cycles — just wait (FundedNext 21-day option: no target, no days).
+ *   2. N non-consecutive *winning days*, each clearing a small daily profit floor
+ *      (Apex: 5 days ≥ $250 on 50K EOD; Topstep: 5 days ≥ $200; FundedNext 3-day
+ *      option: 3 days ≥ 1%). This is strictly easier than N full-target clears,
+ *      and the model has no knob for it.
+ *   3. Minimum-balance gates (Apex Safety Net: balance ≥ DD + $100).
+ * Presets therefore model the payout phase as a SINGLE attempt (`days = 1`)
+ * aimed at the realistic minimum-balance target, and each preset's note spells
+ * out the official rule it abstracts. `days > 1` is only used to approximate
+ * multi-phase *evaluations* (e.g. FundedNext Stellar's two sequential targets).
  */
 
 /** How much we trust the numbers, given that firms change rules constantly. */
@@ -76,14 +83,14 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
     accountSize: 50000,
     variant: { 'zh-CN': '50K · EOD 日终回撤', en: '50K · EOD trailing drawdown' },
     market: 'futures',
-    verifiedAt: '2026-09',
+    verifiedAt: '2026-10',
     source:
-      'https://forexcalculator.pro/apex-trader-funding-rules-evaluation-payout-and-account-rules/',
+      'https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-payouts',
     confidence: 'medium',
     note: {
       'zh-CN':
-        '评估费 $249 为标价，Apex 常年有大幅促销，实际可能低至 $30 左右，请按你付款时的价格改。评估阶段无最低天数要求，故天数取模型下限 1。出金目标取「安全网 + $500 最低出金」≈ $2,600。⚠️ 出金阶段的「5 个合格交易日」在现实中是门槛，而本模型把它当作「连续 5 次独立达成目标」来复合计算，因此这一条会明显高估所需账号数，建议把出金天数改成 1 再看。',
-      en: 'The $249 evaluation price is list price — Apex runs deep discounts, so edit it to what you actually paid. Apex sets no minimum trading days for the evaluation, so days fall back to the model floor of 1. The payout target is the safety-net plus the $500 minimum withdrawal ≈ $2,600. ⚠️ The "5 qualifying days" payout gate is treated by this model as five independent attempts at the target, which materially overstates the number of accounts you would need — try setting payout days to 1 as well.',
+        '按 2026-03 后的新版规则与官方帮助中心：50K EOD 评估目标 $3,000、回撤 $2,000，最低通过天数 1，一次性收费（$249 为标价，常年大幅促销，请按实付改）。官方出金规则不是「5 次达成总目标」，而是「5 个非连续盈利日、每天 ≥$250」+ 安全网（回撤+$100 = $2,600）+ 单次上限（前两笔 $1,500）+ 50% 一致性，无时间限制。因此本预设把出金阶段按单次尝试建模：天数 1、目标 $2,600（最低请求余额 − 起始资金）、回撤 $2,500，实际到手按首笔上限 $1,500 计。一致性规则与最多 6 次出金未建模。',
+      en: 'Per the new Apex rules (accounts bought after 2026-03) and the official help centre: 50K EOD eval target $3,000, drawdown $2,000, minimum days to pass 1, one-time fee ($249 list — deep coupons are common, use what you actually paid). The official payout rule is NOT "clear the target five times": it is 5 non-consecutive winning days of $250+ each, plus a Safety Net (drawdown + $100 = $2,600), a per-payout cap ($1,500 for the first two), and a 50% consistency rule, with no deadline. This preset therefore models the payout phase as a single attempt: days 1, target $2,600 (min balance to request minus start), drawdown $2,500, and $1,500 actual payout (first-payout cap). Consistency and the 6-payout lifetime cap are not modelled.',
     },
     inputs: {
       costPerAccount: 249,
@@ -91,10 +98,10 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
       examDrawdown: 2000,
       examTarget: 3000,
       examDays: 1,
-      payoutDrawdown: 2000,
+      payoutDrawdown: 2500,
       payoutTarget: 2600,
-      payoutDays: 5,
-      actualPayout: 2600,
+      payoutDays: 1,
+      actualPayout: 1500,
     },
   },
   {
@@ -104,22 +111,23 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
     variant: { 'zh-CN': '50K · Trading Combine', en: '50K · Trading Combine' },
     market: 'futures',
     verifiedAt: '2026-10',
+    source: 'https://www.quantvps.com/blog/topstep-payout-policy',
     confidence: 'low',
     note: {
       'zh-CN':
-        'Topstep 按「月费」计费而非一次性买断，这里的 $49 是 50K 组合的月费。通过后没有激活费。获资账户没有固定利润目标，只有「5 个 $200+ 盈利日」才能出金，因此出金阶段的数字是常见首次出金的假设值，请按你的计划改。',
-      en: 'Topstep bills monthly rather than selling a one-off evaluation; $49 is the 50K Combine monthly fee. There is no activation fee. The funded account has no fixed profit target — only a "5 winning days of $200+" gate before a withdrawal — so the payout-phase numbers are typical first-payout assumptions. Adjust them to your plan.',
+        'Topstep 按月订阅（$49 为 50K 组合月费），无激活费。评估目标为 6%（50K 即 $3,000），官方无最低交易天数，故天数取模型下限 1。出金规则（多个 2026 年来源一致）：累计 5 个非连续「盈利日」（每日净利 ≥$200）后可申请，单次上限 $5,000 或利润的 50%（取低者），最低 $125，每次出金后重新计 5 天。本预设假设首次出金前赚 $2,000，按 50% 取 $1,000 到手。2026 年起分成约为 90/10（旧规则为首笔 $10,000 内 100%），来源间有出入，请以官网结账页为准；官方规则页需登录查看。',
+      en: 'Topstep bills monthly ($49 is the 50K Combine fee); no activation fee. The eval target is 6% ($3,000 on 50K) and there is no minimum trading day, so days fall back to the model floor of 1. Payout rule (consistent across several 2026 sources): after 5 non-consecutive winning days (Net PnL ≥ $200 each) you may request up to $5,000 or 50% of profit (whichever is lower), minimum $125; the 5 days reset after each payout. This preset assumes a $2,000 profit before the first withdrawal and takes 50% → $1,000. The split changed around 2026 to 90/10 from the first dollar (older sources say 100% of the first $10,000) — check the official checkout page; Topstep\u2019s own rules page requires login.',
     },
     inputs: {
       costPerAccount: 49,
       activationFee: 0,
       examDrawdown: 2000,
       examTarget: 3000,
-      examDays: 5,
+      examDays: 1,
       payoutDrawdown: 2000,
       payoutTarget: 2000,
-      payoutDays: 5,
-      actualPayout: 1800,
+      payoutDays: 1,
+      actualPayout: 1000,
     },
   },
   {
@@ -156,12 +164,12 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
     market: 'forex',
     verifiedAt: '2026-10',
     source:
-      'https://proptradingarea.com/prop-trading-firm-challenges/funded-next/stellar-2-step-100k',
-    confidence: 'low',
+      'https://help.fundednext.com/en/articles/9430123-is-there-a-minimum-trading-day-and-profit-target-in-the-fundednext-account-of-the-stellar-2-step-model',
+    confidence: 'medium',
     note: {
       'zh-CN':
-        'Stellar 是两阶段考核（利润目标 8% / 5%），而本模型只有一个考试阶段。这里用「较严阶段的目标 + 天数 2」来近似两阶段的复合概率，属于近似值，不是精确复刻。获资后需完成 5 个 Benchmark Day 才能出金，故出金天数取 5。',
-      en: 'Stellar is a 2-step evaluation (8% / 5% profit targets) while this model has a single evaluation phase. We approximate the compounded two-phase probability by using the first phase target with `days = 2` — an approximation, not an exact replica. Funded accounts need 5 Benchmark Days before a payout, hence payout days = 5.',
+        'Stellar 是两阶段考核（8% / 5%），本模型只有单个考试阶段，用「较严目标 + 天数 2」近似两阶段的复合概率（近似，非精确）。获资阶段按官方帮助中心有三种出金选项（结账时选定、不可更改）：①21 天周期——无目标、无最低天数，分成 80%；②3 天周期——每周期 3 个盈利日、每日 ≥1%（100K 即 $1,000），分成 60%；③按需——总增长 ≥2%（$2,000）且最佳单日 ≤40% 总利润，分成 90%。本预设按选项③建模：目标 $2,000、天数 1、到手 $1,800（90%）。旧资料中的「5 个 Benchmark Day」与官方当前帮助中心不一致，请以你结账时所选选项为准。',
+      en: 'Stellar is a 2-step evaluation (8% / 5% profit targets) while this model has a single evaluation phase; we approximate the compounded two-phase probability with the stricter target and days = 2 — an approximation, not an exact replica. The funded phase has three payout options per the official help centre (fixed at checkout): (1) 21-day cycles — no target, no minimum days, 80% split; (2) 3-day cycles — 3 profitable days per cycle at ≥1% each ($1,000 on 100K), 60% split; (3) On-Demand — ≥2% total growth ($2,000) with the best day ≤40% of total profit, 90% split. This preset models option (3): target $2,000, days 1, $1,800 payout. Older third-party pages mention "5 Benchmark Days", which does not match the current official help centre — check the option you actually selected at checkout.',
     },
     inputs: {
       costPerAccount: 550,
@@ -170,9 +178,9 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
       examTarget: 8000,
       examDays: 2,
       payoutDrawdown: 10000,
-      payoutTarget: 5000,
-      payoutDays: 5,
-      actualPayout: 4000,
+      payoutTarget: 2000,
+      payoutDays: 1,
+      actualPayout: 1800,
     },
   },
 ]);
