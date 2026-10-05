@@ -330,6 +330,10 @@ git push origin v2.0.1
   实战出金记录相互印证。**谢谢 Z神提供的灵感与帮助**——没有这份材料就没有这个工具。
   欢迎去他的 B 站主页支持。
 
+## 友链
+
+- **[LINUX DO](https://linux.do)** —— 中文开发者社区，友链。
+
 ## 参与贡献
 
 请阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)。本项目遵循

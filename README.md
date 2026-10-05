@@ -364,6 +364,11 @@ git push origin v2.0.1
   cash-outs he documented. 谢谢 Z神提供的灵感与讲解 — this tool exists because of
   that material. Go follow the channel.
 
+## Links
+
+- **[LINUX DO](https://linux.do)** — a Chinese-speaking developer community.
+  Friend link.
+
 ## Contributing
 
 Read [CONTRIBUTING.md](./CONTRIBUTING.md). This project follows the
