@@ -64,7 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   share of the target (e.g. 800÷3≈267) with `days = 3`, which reproduces the
   numbers taught in community material (Rapid 25K → ~5.08 accounts, ~+52% ROI).
 - **Attribution** — an Acknowledgements section in both READMEs crediting
-  [Z-shen (Bilibili)](https://space.bilibili.com/101513971) for the inspiration
+  [Z-shen (z说交易) on Bilibili](https://space.bilibili.com/101513971) for the
+  inspiration
   and the prop-firm rule walkthroughs behind the presets.
 
 ### Changed

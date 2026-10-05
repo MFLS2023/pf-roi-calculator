@@ -57,11 +57,15 @@
 
 ### 3. 桌面软件
 
-到 [Releases](../../releases) 页面下载安装包：Windows 是 `.msi`/`.exe`，
+到 [Releases 页面](https://github.com/MFLS2023/pf-roi-calculator/releases)
+下载安装包：Windows 是 `.msi`/`.exe`，
 macOS 是 `.dmg`，Linux 是 `.deb`/`.rpm`/`.AppImage`。
 这些由 CI 自动构建，**你本地不需要装 Node 或 Rust**。
 
 ### 4. 从源码运行
+
+需要 **Node.js ≥ 20.19**（见 `package.json` 的 `engines` 与 `.nvmrc`）。
+除非你要自己打桌面安装包，否则不需要 Rust 工具链。
 
 ```bash
 git clone https://github.com/MFLS2023/pf-roi-calculator.git
@@ -69,6 +73,10 @@ cd pf-roi-calculator
 npm install
 npm run dev        # http://127.0.0.1:5173
 ```
+
+> 国内网络访问 npm 官方源较慢时，可加 `--registry=https://registry.npmmirror.com`。
+> 但**提交前记得把 lockfile 里的地址还原**，否则会把镜像地址带进仓库：
+> `sed -i 's|registry.npmmirror.com|registry.npmjs.org|g' package-lock.json`
 
 ---
 
@@ -222,7 +230,7 @@ ROI = (实际出金 − 总投入成本) / 总投入成本 × 100%
 | 桌面 | Tauri v2 | 约 10 MB 安装包，Electron 约 100 MB |
 | 运行时依赖 | **1 个**（`qrcode-generator`） | fork 成本低、审计简单 |
 
-产物体积：JS + CSS 合计约 **26 kB（gzip 后）**。
+产物体积：JS + CSS 合计约 **30 kB（gzip 后）**。
 
 ---
 
@@ -316,7 +324,7 @@ git push origin v2.0.1
 
 ## 致谢
 
-- **[Z神（Z叔）](https://space.bilibili.com/101513971)** —— B 站期货自营交易教育者。
+- **[Z神（z说交易）](https://space.bilibili.com/101513971)** —— B 站期货自营交易教育者。
   他对自营平台规则机制的讲解（回撤类型、一致性、盈利日、缓冲区），以及「用期望值和
   投产比来衡量账号价格」的思路，直接催生了这个项目；FundedNext 期货预设也与他公开的
   实战出金记录相互印证。**谢谢 Z神提供的灵感与帮助**——没有这份材料就没有这个工具。

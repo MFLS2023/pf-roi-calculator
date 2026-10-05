@@ -63,11 +63,15 @@ Once installed it launches in its own window and works with no network at all.
 
 ### 3. Desktop app
 
-Grab an installer from the [Releases](../../releases) page — `.msi`/`.exe` for
-Windows, `.dmg` for macOS, `.deb`/`.rpm`/`.AppImage` for Linux. These are built in
-CI; you do not need Node or Rust to use them.
+Grab an installer from the
+[Releases page](https://github.com/MFLS2023/pf-roi-calculator/releases):
+`.msi`/`.exe` for Windows, `.dmg` for macOS, `.deb`/`.rpm`/`.AppImage` for Linux.
+These are built in CI; you do not need Node or Rust to use them.
 
 ### 4. Run from source
+
+Requires **Node.js ≥ 20.19** (see `engines` in `package.json` and `.nvmrc`).
+No Rust toolchain is needed unless you want to build the desktop shell.
 
 ```bash
 git clone https://github.com/MFLS2023/pf-roi-calculator.git
@@ -75,6 +79,11 @@ cd pf-roi-calculator
 npm install
 npm run dev        # http://127.0.0.1:5173
 ```
+
+> On a slow link to the npm registry, add
+> `--registry=https://registry.npmmirror.com` to `npm install`. If you do, restore
+> the canonical URLs in the lockfile before committing:
+> `sed -i 's|registry.npmmirror.com|registry.npmjs.org|g' package-lock.json`.
 
 ---
 
@@ -250,7 +259,7 @@ Adding a firm is a one-object change in `src/data/presets.ts` — see
 | Desktop | Tauri v2 | ~10 MB binaries vs. ~100 MB for Electron |
 | Runtime deps | **1** (`qrcode-generator`) | Keeps forks cheap and audits trivial |
 
-Output: **~26 kB gzipped** of JavaScript and CSS.
+Output: **~30 kB gzipped** of JavaScript and CSS.
 
 ---
 
@@ -347,13 +356,13 @@ git push origin v2.0.1
 
 ## Acknowledgements
 
-- **[Z-shen（Z叔）](https://space.bilibili.com/101513971)** — a futures prop-trading
-  educator on Bilibili. His walkthroughs of prop-firm rule mechanics (drawdown
-  types, consistency rules, winning days, buffers) and his expectancy-first way
-  of evaluating account prices directly inspired this project, and the
-  FundedNext Futures presets were sanity-checked against real cash-outs he
-  documented. 谢谢 Z神提供的灵感与讲解 — this tool exists because of that
-  material. Go follow the channel.
+- **[Z-shen (z说交易)](https://space.bilibili.com/101513971)** — a futures
+  prop-trading educator on Bilibili. His walkthroughs of prop-firm rule mechanics
+  (drawdown types, consistency rules, winning days, buffers) and his
+  expectancy-first way of evaluating account prices directly inspired this
+  project, and the FundedNext Futures presets were sanity-checked against real
+  cash-outs he documented. 谢谢 Z神提供的灵感与讲解 — this tool exists because of
+  that material. Go follow the channel.
 
 ## Contributing
 
