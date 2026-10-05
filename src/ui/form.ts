@@ -7,25 +7,30 @@ import { h } from './dom';
 /**
  * The input form, generated from {@link FORM_GROUPS}.
  *
- * Nothing here knows about the maths: it only reads raw strings out of the DOM
- * and hands them to the sanitiser, and writes values back in.
+ * Nothing here knows about the maths: it reads values out of the DOM, clamps
+ * them to the field's declared range, and writes values back in.
+ *
+ * ## Single source of truth
+ * `read()` is the only way the rest of the app learns what the user typed, and it
+ * always returns in-range values. That matters because the previous version let
+ * the DOM and the model disagree: typing `-50` into a `min="0"` field left the
+ * box showing `-50` while every metric was computed from `0`, with no feedback.
+ * Now an out-of-range value is flagged while it is being typed (red border) and
+ * snapped to the nearest legal value on blur, so the box can never lie.
  */
 
 export interface FormController {
   root: HTMLElement;
-  /** Raw (un-sanitised) values, ready for `calculate()`. */
+  /** In-range values, ready for `calculate()`. */
   read(): CalculatorInputs;
   /** Push values into the inputs (used by presets / reset / scenario load). */
   write(inputs: CalculatorInputs): void;
-  /** Re-render labels, units and placeholders for the active locale. */
+  /** Re-render labels and units for the active locale. */
   refreshLabels(): void;
-  /** Focus the first field — used after a preset switch on desktop. */
-  focusFirst(): void;
 }
 
 interface FieldRefs {
   spec: FieldSpec;
-  wrapper: HTMLElement;
   label: HTMLLabelElement;
   unit: HTMLSpanElement;
   input: HTMLInputElement;
@@ -36,6 +41,11 @@ function unitSuffix(spec: FieldSpec): string {
   if (spec.unit === 'usd') return `(${dict.unitUsd})`;
   if (spec.unit === 'days') return `(${dict.unitDays})`;
   return '';
+}
+
+/** Coerce a raw field value into the field's legal range. */
+function clampToSpec(spec: FieldSpec, raw: number): number {
+  return Number.isFinite(raw) ? Math.max(spec.min, raw) : spec.min;
 }
 
 export function createForm(options: {
@@ -70,9 +80,21 @@ export function createForm(options: {
         'aria-label': dict[spec.labelKey],
       });
 
+      const ref: FieldRefs = { spec, label, unit, input };
+
       // Live recalculation on every keystroke — the "silky" feel from the spec.
-      input.addEventListener('input', options.onChange);
-      input.addEventListener('change', options.onChange);
+      input.addEventListener('input', () => {
+        flagOutOfRange(ref);
+        options.onChange();
+      });
+
+      // On blur, snap an illegal (or empty) value to the nearest legal one so the
+      // box always shows what is actually being computed with.
+      input.addEventListener('change', () => {
+        snapToRange(ref);
+        options.onChange();
+      });
+
       // Enter recalculates and blurs, which dismisses the mobile keypad.
       input.addEventListener('keydown', (event) => {
         if ((event as KeyboardEvent).key === 'Enter') {
@@ -82,9 +104,8 @@ export function createForm(options: {
         }
       });
 
-      const wrapper = h('div', { class: 'field' }, [label, input]);
-      grid.append(wrapper);
-      refs.push({ spec, wrapper, label, unit, input });
+      grid.append(h('div', { class: 'field' }, [label, input]));
+      refs.push(ref);
     }
 
     const head = h('div', { class: 'group__head' }, [
@@ -100,14 +121,33 @@ export function createForm(options: {
 
   FORM_GROUPS.forEach((group, index) => root.append(buildGroup(group, index)));
 
+  /** Mark a field the user is currently typing out of range. */
+  function flagOutOfRange(ref: FieldRefs): void {
+    const raw = Number.parseFloat(ref.input.value);
+    if (Number.isFinite(raw) && raw < ref.spec.min) {
+      ref.input.setAttribute('data-invalid', 'true');
+    } else {
+      ref.input.removeAttribute('data-invalid');
+    }
+  }
+
+  /** Snap an out-of-range or empty field to the nearest legal value. */
+  function snapToRange(ref: FieldRefs): void {
+    const raw = Number.parseFloat(ref.input.value);
+    const clamped = clampToSpec(ref.spec, raw);
+    if (ref.input.value !== String(clamped)) {
+      ref.input.value = String(clamped);
+    }
+    ref.input.removeAttribute('data-invalid');
+  }
+
   return {
     root,
 
     read(): CalculatorInputs {
       const out = {} as CalculatorInputs;
       for (const ref of refs) {
-        const raw = Number.parseFloat(ref.input.value);
-        out[ref.spec.key] = Number.isFinite(raw) ? raw : 0;
+        out[ref.spec.key] = clampToSpec(ref.spec, Number.parseFloat(ref.input.value));
       }
       return out;
     },
@@ -115,7 +155,9 @@ export function createForm(options: {
     write(inputs: CalculatorInputs): void {
       for (const ref of refs) {
         const next = inputs[ref.spec.key];
-        ref.input.value = Number.isFinite(next) ? String(next) : '';
+        const clamped = clampToSpec(ref.spec, next);
+        ref.input.value = Number.isFinite(clamped) ? String(clamped) : '';
+        ref.input.removeAttribute('data-invalid');
       }
     },
 
@@ -129,12 +171,6 @@ export function createForm(options: {
         // Rebuild the label text while keeping the unit span in place.
         ref.label.firstChild?.replaceWith(document.createTextNode(`${next[ref.spec.labelKey]} `));
       }
-    },
-
-    focusFirst(): void {
-      const first = refs[0];
-      first?.input.focus();
-      first?.input.select();
     },
   };
 }

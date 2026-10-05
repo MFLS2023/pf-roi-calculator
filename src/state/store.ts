@@ -1,4 +1,4 @@
-import { calculate } from '../domain/calculator';
+import { calculate, sanitizeInputs } from '../domain/calculator';
 import { DEFAULT_INPUTS, MAX_SCENARIOS } from '../domain/constants';
 import { createScenario, loadScenarios, persistScenarios } from '../domain/scenarios';
 import type { CalculatorInputs, CalculatorResult, SavedScenario } from '../domain/types';
@@ -13,11 +13,25 @@ export const CUSTOM_PRESET_ID = 'custom';
 
 /** The single source of application state. Views render from this, actions mutate it. */
 export interface AppState {
+  /**
+   * Always sanitised: finite, non-negative, day counts >= 1. Actions run the
+   * input through `sanitizeInputs()` before storing it, so `inputs` and
+   * `result.inputs` can never disagree — the previous version stored raw DOM
+   * values here, which meant a typed `-50` lived in `inputs` while the maths
+   * used `0`.
+   */
   inputs: CalculatorInputs;
   result: CalculatorResult;
   scenarios: SavedScenario[];
   /** Active preset id, or {@link CUSTOM_PRESET_ID} once inputs drift. */
   presetId: string;
+  /**
+   * The last preset the user *explicitly* applied. Unlike `presetId` this never
+   * becomes {@link CUSTOM_PRESET_ID}, so the reference note (official rules,
+   * source URL, caveats) survives manual edits instead of vanishing the moment
+   * the user touches a field.
+   */
+  presetOrigin: string;
 }
 
 export type Listener = (state: AppState) => void;
@@ -54,6 +68,7 @@ export function createAppStore(): AppStore {
     result: calculate({ ...DEFAULT_INPUTS }),
     scenarios: loadScenarios(),
     presetId: REFERENCE_PRESET_ID,
+    presetOrigin: REFERENCE_PRESET_ID,
   };
 
   const listeners = new Set<Listener>();
@@ -64,8 +79,14 @@ export function createAppStore(): AppStore {
     state = { ...state, ...patch };
     emit();
   };
-  const withResult = (inputs: CalculatorInputs, presetId: string): void => {
-    set({ inputs, presetId, result: calculate(inputs) });
+
+  /**
+   * Single funnel for every input change: sanitise once, derive the result from
+   * those exact values, and emit exactly once.
+   */
+  const commit = (raw: CalculatorInputs, patch: Partial<AppState>): void => {
+    const inputs = sanitizeInputs(raw);
+    set({ ...patch, inputs, result: calculate(inputs) });
   };
 
   return {
@@ -87,17 +108,22 @@ export function createAppStore(): AppStore {
         (Object.keys(preset.inputs) as Array<keyof CalculatorInputs>).every(
           (key) => preset.inputs[key] === inputs[key],
         );
-      withResult(inputs, stillMatches ? state.presetId : CUSTOM_PRESET_ID);
+      commit(inputs, { presetId: stillMatches ? state.presetId : CUSTOM_PRESET_ID });
     },
 
     applyInputs(inputs: CalculatorInputs, presetId: string): void {
-      withResult(inputs, presetId);
+      // Only a *real* preset becomes the origin, so "custom" and scenario loads
+      // keep the previously applied preset's reference note alive.
+      commit(inputs, {
+        presetId,
+        presetOrigin: getPreset(presetId) ? presetId : state.presetOrigin,
+      });
     },
 
     applyPreset(presetId: string): boolean {
       const preset = getPreset(presetId);
       if (!preset) return false;
-      withResult({ ...preset.inputs }, presetId);
+      commit({ ...preset.inputs }, { presetId, presetOrigin: presetId });
       return true;
     },
 
@@ -122,7 +148,10 @@ export function createAppStore(): AppStore {
     },
 
     resetToDefaults(): void {
-      withResult({ ...DEFAULT_INPUTS }, REFERENCE_PRESET_ID);
+      commit({ ...DEFAULT_INPUTS }, {
+        presetId: REFERENCE_PRESET_ID,
+        presetOrigin: REFERENCE_PRESET_ID,
+      });
     },
   };
 }
