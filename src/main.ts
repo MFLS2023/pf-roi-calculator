@@ -254,11 +254,25 @@ function syncPresetSelect(presetId: string): void {
 
 /* ------------------------------------------------- store → view subscription */
 
+// Views re-render only when the slice they display actually changed: metrics and
+// the ROI card react to every recalculation, but the scenario table and the
+// preset note are keyed by reference identity so typing never rebuilds them.
+let lastScenarios: readonly SavedScenario[] | null = null;
+let lastPresetId: string | null = null;
+
 store.subscribe((state) => {
   renderResult(state.result);
-  renderScenarios(state.scenarios);
-  syncPresetSelect(state.presetId);
-  renderPresetNote(state.presetId);
+
+  if (state.scenarios !== lastScenarios) {
+    lastScenarios = state.scenarios;
+    renderScenarios(state.scenarios);
+  }
+
+  if (state.presetId !== lastPresetId) {
+    lastPresetId = state.presetId;
+    syncPresetSelect(state.presetId);
+    renderPresetNote(state.presetId);
+  }
 });
 
 /* ------------------------------------------------------------------ handlers */
