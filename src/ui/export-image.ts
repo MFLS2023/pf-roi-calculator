@@ -22,8 +22,9 @@ const FONT_STACK =
 
 /**
  * Terminal-ledger palette for the exported card (dark, like the app's default
- * theme). P&L colours follow the CN market convention: gains are red, losses
- * are green.
+ * theme). P&L colours follow the international convention: gains are green,
+ * losses are red — kept in lockstep with `--positive` / `--negative` in
+ * `src/styles/tokens.css`.
  */
 const INK = {
   strong: '#eceff4',
@@ -31,8 +32,8 @@ const INK = {
   muted: '#99a3b0',
   faint: '#6b7684',
   line: '#26303e',
-  positive: '#ff6b6b',
-  negative: '#3ddc97',
+  positive: '#3ddc97',
+  negative: '#ff6b6b',
   card: '#151a22',
   sunken: '#1a212c',
   borderSoft: '#212a36',

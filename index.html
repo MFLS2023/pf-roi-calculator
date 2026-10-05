@@ -44,6 +44,17 @@
           </div>
         </div>
         <div class="app__header-actions">
+          <!-- Repo shortcut. `href` is static so it works even before JS boots. -->
+          <a
+            class="gh-link"
+            id="gh-link"
+            href="https://github.com/MFLS2023/pf-roi-calculator"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span id="gh-icon" aria-hidden="true"></span>
+            <span class="gh-link__name" id="gh-name">MFLS2023</span>
+          </a>
           <button
             class="btn btn--chip is-hidden"
             type="button"
@@ -69,6 +80,8 @@
       <div class="app__body">
         <section class="pane pane--form" id="form-pane" aria-label="参数输入"></section>
 
+        <!-- Everything downstream of the inputs lives in one column so the whole
+             tool reads top-to-bottom and fits on a single screen. -->
         <section class="pane pane--results">
           <div class="roi" id="roi-card">
             <div class="roi__title">
@@ -84,7 +97,6 @@
             <div class="roi__foot" id="roi-foot"></div>
             <div class="roi__note" id="roi-note"></div>
             <div class="roi__verdict is-neutral is-hidden" id="roi-verdict"></div>
-            <div class="roi__legend" data-i18n="roiLegend">红涨绿跌 · 遵循国内行情配色习惯</div>
           </div>
 
           <div id="metrics-host"></div>
@@ -92,20 +104,17 @@
           <div class="actions">
             <button class="btn btn--secondary" type="button" id="export-btn"></button>
           </div>
-        </section>
 
-        <!-- Comparison lives under the LEFT column on desktop (grid row 2),
-             so the sticky results pane has room to follow the scroll. -->
-        <div id="compare-host"></div>
+          <!-- Scenario comparison — grouped with the export action so the right
+               column carries the whole "results & analysis" story. -->
+          <div id="compare-host"></div>
+        </section>
       </div>
 
       <!-- ================= footer ================= -->
       <footer class="app__footer">
         <p><code id="footer-model">P = (D / (D + T))^N</code></p>
         <p id="footer-disclaimer"></p>
-        <p class="app__footer-credit">
-          <a id="footer-credit" href="https://space.bilibili.com/101513971" target="_blank" rel="noopener noreferrer"></a>
-        </p>
       </footer>
     </div>
 

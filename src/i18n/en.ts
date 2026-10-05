@@ -7,10 +7,13 @@ export const en: Dict = {
   appTitle: 'ROI Calculator',
   appSubtitle: 'Prop Firm ROI Calculator',
   docTitle: 'Prop Firm ROI Calculator · PF 投产比计算器',
+  githubLabel: 'View the source on GitHub',
 
   /* ---------- toolbar ---------- */
   presetLabel: 'Firm preset',
   presetCustom: 'Custom / reference example',
+  presetVerified: 'verified {month}',
+  presetModified: 'inputs modified',
   presetDisclaimer:
     'Presets are community-maintained reference values (month verified is shown). Firm rules, account sizes and promo pricing change often — always verify on the official site.',
   languageLabel: 'Language',
@@ -71,7 +74,6 @@ export const en: Dict = {
   roiInvalid: 'Check your inputs — drawdown + target must be greater than 0',
   roiVerdictPositive: 'Positive expectancy — worth funding',
   roiVerdictNegative: 'Negative expectancy — a guaranteed long-run loss',
-  roiLegend: 'CN market convention: red = gain, green = loss',
 
   /* ---------- comparison ---------- */
   compareTitle: 'Scenario comparison',
@@ -96,7 +98,6 @@ export const en: Dict = {
   footerModel: 'Model: P = (D / (D + T))^N · zero-drift random walk (gambler\u2019s ruin)',
   footerDisclaimer:
     'This tool performs a mathematical expectancy estimate only. Nothing here is investment advice. Trading carries risk; past probabilities do not predict future results.',
-  footerCredit: 'Inspired by Z-shen\u2019s prop-firm walkthroughs · Bilibili',
 
   /* ---------- PWA ---------- */
   installApp: 'Install app',

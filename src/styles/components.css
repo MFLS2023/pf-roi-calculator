@@ -6,8 +6,8 @@
   background: var(--surface-subtle);
   border: 1px solid var(--border-group);
   border-radius: var(--radius-group);
-  padding: 14px 14px 16px;
-  margin-bottom: 12px;
+  padding: 12px 14px 13px;
+  margin-bottom: 10px;
 }
 
 .group:last-of-type {
@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .group__head-left {
@@ -67,7 +67,7 @@
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 12px;
+  gap: 8px 12px;
 }
 
 .field {
@@ -123,7 +123,8 @@
 }
 
 .field__input[data-invalid='true'] {
-  border-color: var(--positive);
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
 }
 
 /* Comfortable touch targets on phones / tablets. */
@@ -214,8 +215,8 @@
 }
 
 .btn--icon:hover {
-  background: var(--positive-soft);
-  color: var(--positive);
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .btn__spinner {
@@ -301,8 +302,8 @@
 .metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 @media (min-width: 640px) {
@@ -315,9 +316,9 @@
 .metric {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 5px;
   min-width: 0;
-  padding: 10px 9px 11px 11px;
+  padding: 8px 9px 9px 10px;
   background: var(--surface);
   border: 1px solid var(--border-soft);
   border-left: 3px solid var(--accent-bar);
@@ -401,8 +402,8 @@
    ========================================================================== */
 
 .roi {
-  margin-top: 16px;
-  padding: 20px 18px 16px;
+  margin-top: 12px;
+  padding: 14px 16px 13px;
   background: var(--surface-sunken);
   border: 1px solid var(--border-soft);
   border-top: 3px solid var(--accent-bar);
@@ -430,7 +431,7 @@
   transition: color 0.25s ease;
 }
 
-/* P&L semantics: 红 = gain, 绿 = loss (CN market convention). */
+/* P&L semantics: green = gain, red = loss (international convention). */
 .roi__value.is-positive {
   color: var(--positive);
 }
@@ -480,12 +481,6 @@
   background: var(--surface-chip);
 }
 
-.roi__legend {
-  margin-top: 10px;
-  font-size: 10.5px;
-  color: var(--text-faint);
-}
-
 @media (max-width: 380px) {
   .roi__value {
     font-size: 33px;
@@ -499,7 +494,7 @@
 .actions {
   display: flex;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 .actions .btn {
@@ -512,8 +507,8 @@
    ========================================================================== */
 
 .compare {
-  margin-top: 20px;
-  padding-top: 18px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid var(--border-soft);
 }
 
@@ -533,15 +528,15 @@
 
 .compare__hint {
   font-size: 11px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--text-faint);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .compare__save-row {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .compare__name {
@@ -564,12 +559,12 @@
 
 .compare__empty {
   font-size: 12px;
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--text-faint);
   background: var(--surface-subtle);
   border: 1px dashed var(--border);
   border-radius: var(--radius-group);
-  padding: 16px;
+  padding: 12px;
   text-align: center;
 }
 
@@ -582,14 +577,17 @@
 
 .compare__table {
   width: 100%;
-  min-width: 520px;
+  /* Fits the desktop results column (~525px at a 1024px viewport) without
+     forcing a horizontal scrollbar — the whole point of a comparison table is
+     seeing every column at once. Phones still scroll inside `.compare__scroll`. */
+  min-width: 460px;
   border-collapse: collapse;
   font-size: 12px;
 }
 
 .compare__table th,
 .compare__table td {
-  padding: 9px 10px;
+  padding: 7px 8px;
   text-align: right;
   white-space: nowrap;
   border-bottom: 1px solid var(--border-soft);
@@ -643,7 +641,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  max-width: 200px;
+  max-width: 132px;
 }
 
 .compare__name-text {
@@ -653,14 +651,15 @@
   color: var(--text-title);
 }
 
+/* Status badge — uses the status palette, not the P&L one. */
 .badge {
   flex: 0 0 auto;
   font-size: 10px;
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 999px;
-  color: var(--positive);
-  background: var(--positive-soft);
+  color: var(--success);
+  background: var(--success-soft);
 }
 
 .badge--confidence {
@@ -681,11 +680,18 @@
 }
 
 .badge--high {
-  color: var(--negative);
-  background: var(--negative-soft);
+  color: var(--success);
+  background: var(--success-soft);
 }
 
-/* P&L values in the comparison table follow the CN convention. */
+/* Shown next to the preset note once the user has edited a field, so the
+   reference rules stay visible but are clearly marked as "no longer applied". */
+.badge--modified {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* P&L values in the comparison table: green = gain, red = loss. */
 .value--positive {
   color: var(--positive);
   font-weight: 700;
@@ -751,11 +757,11 @@
 }
 
 .toast--success {
-  border-left-color: var(--negative);
+  border-left-color: var(--success);
 }
 
 .toast--error {
-  border-left-color: var(--positive);
+  border-left-color: var(--danger);
 }
 
 @keyframes toast-in {

@@ -11,10 +11,13 @@ export const zhCN = {
   appTitle: 'ROI 计算器',
   appSubtitle: 'PF 投产比计算器',
   docTitle: 'PF 投产比计算器 · Prop Firm ROI Calculator',
+  githubLabel: '在 GitHub 上查看源码',
 
   /* ---------- toolbar ---------- */
   presetLabel: '机构预设',
   presetCustom: '自定义 / 默认示例',
+  presetVerified: '核实于 {month}',
+  presetModified: '参数已修改',
   presetDisclaimer:
     '预设参数为社区维护的参考值（标注了核实月份）。机构规则、账户规模与促销价变动频繁，请以官网为准。',
   languageLabel: '语言',
@@ -75,7 +78,6 @@ export const zhCN = {
   roiInvalid: '请检查输入参数：回撤 + 利润必须大于 0',
   roiVerdictPositive: '期望为正，值得投入',
   roiVerdictNegative: '期望为负，长期必亏',
-  roiLegend: '红涨绿跌 · 遵循国内行情配色习惯',
 
   /* ---------- comparison ---------- */
   compareTitle: '多方案对比',
@@ -100,7 +102,6 @@ export const zhCN = {
   footerModel: '模型：P = (D / (D + T))^N · 零漂移随机游走（赌徒破产）',
   footerDisclaimer:
     '本工具仅做数学期望测算，不构成投资建议。交易有风险，历史概率不代表未来结果。',
-  footerCredit: '灵感与规则讲解致谢：Z神 · B站主页',
 
   /* ---------- PWA ---------- */
   installApp: '安装到设备',

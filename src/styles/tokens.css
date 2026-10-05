@@ -5,9 +5,10 @@
  * accent, sharp radii and tabular numerals. A warm-paper light theme is
  * provided as the secondary mode.
  *
- * P&L semantics follow the Chinese market convention (红涨绿跌): *gains are
- * red*, losses are green. The `--positive` token therefore means "gain" and
- * renders red — see the legend line in the ROI card.
+ * P&L semantics follow the international convention (green up / red down):
+ * gains render green, losses render red. `--success` / `--danger` are separate
+ * tokens for UI status (toasts, invalid fields) so that status colour never
+ * rides on the P&L palette.
  *
  * Every colour, radius and shadow used anywhere in the app is declared exactly
  * once, here. Component styles only reference `var(--…)`, which is what makes
@@ -48,12 +49,18 @@
   --btn-primary-bg-hover: linear-gradient(135deg, #ffbe5c, #f0a02a);
   --btn-primary-text: #1a1206;
 
-  /* ---- P&L (CN convention: gain = red, loss = green) ---- */
-  --positive: #ff6b6b;
-  --positive-soft: rgba(229, 72, 77, 0.14);
-  --negative: #3ddc97;
-  --negative-soft: rgba(61, 220, 151, 0.13);
+  /* ---- P&L (international convention: gain = green, loss = red) ---- */
+  --positive: #3ddc97;
+  --positive-soft: rgba(61, 220, 151, 0.13);
+  --negative: #ff6b6b;
+  --negative-soft: rgba(229, 72, 77, 0.14);
   --amber: #f0a63c;
+
+  /* ---- UI status — deliberately NOT the P&L palette ---- */
+  --success: #3ddc97;
+  --success-soft: rgba(61, 220, 151, 0.13);
+  --danger: #ff6b6b;
+  --danger-soft: rgba(229, 72, 77, 0.14);
 
   /* ---- radii ---- */
   --radius-card: 16px;
@@ -71,7 +78,7 @@
   --focus-ring: 0 0 0 3px rgba(240, 166, 60, 0.22);
 
   /* ---- metrics ---- */
-  --header-gap: 22px;
+  --header-gap: 16px;
   --control-h: 40px;
   --button-h: 46px;
 
@@ -119,11 +126,16 @@
     --btn-primary-bg-hover: linear-gradient(135deg, #a16207, #854d0e);
     --btn-primary-text: #ffffff;
 
-    --positive: #c62f35;
-    --positive-soft: rgba(198, 47, 53, 0.09);
-    --negative: #1e7d43;
-    --negative-soft: rgba(30, 125, 67, 0.09);
+    --positive: #1e7d43;
+    --positive-soft: rgba(30, 125, 67, 0.09);
+    --negative: #c62f35;
+    --negative-soft: rgba(198, 47, 53, 0.09);
     --amber: #a16207;
+
+    --success: #1e7d43;
+    --success-soft: rgba(30, 125, 67, 0.09);
+    --danger: #c62f35;
+    --danger-soft: rgba(198, 47, 53, 0.09);
 
     --shadow-card: 0 20px 40px -18px rgba(41, 36, 24, 0.18), 0 0 0 1px rgba(41, 36, 24, 0.04);
     --shadow-logo: 0 6px 14px -6px rgba(161, 98, 7, 0.45);

@@ -2,7 +2,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
 
-import { CREDIT_URL, PROJECT_URL } from './domain/constants';
+import { GITHUB_HANDLE, PROJECT_URL } from './domain/constants';
 import { formatMoney, formatSignedPercent, toneOf } from './domain/formatter';
 import type { CalculatorResult, SavedScenario } from './domain/types';
 import { PRESETS, getPreset, presetAccountSizeLabel } from './data/presets';
@@ -13,7 +13,7 @@ import { createCompare } from './ui/compare';
 import { h, must, setText } from './ui/dom';
 import { downloadShareImage } from './ui/export-image';
 import { createForm } from './ui/form';
-import { icon, LOGO_SVG } from './ui/icons';
+import { GITHUB_SVG, icon, LOGO_SVG } from './ui/icons';
 import { createMetrics } from './ui/metrics';
 import { announce, toast } from './ui/toast';
 
@@ -102,16 +102,36 @@ presetWrap.replaceChildren(
 
 presetSelect.addEventListener('change', () => {
   const id = presetSelect.value;
-  if (id === CUSTOM_PRESET_ID) return;
-  if (!store.applyPreset(id)) return;
+
+  // Choosing "custom" is a real state transition: keep the current inputs but
+  // detach the preset. Returning early here used to leave the dropdown reading
+  // "custom" while the note still described the previous firm.
+  if (id === CUSTOM_PRESET_ID) {
+    store.applyInputs(form.read(), CUSTOM_PRESET_ID);
+    return;
+  }
+
+  if (!store.applyPreset(id)) {
+    // Unknown id — put the dropdown back where the state actually is.
+    syncPresetSelect(store.get().presetId);
+    return;
+  }
+
   form.write(store.get().inputs);
   const preset = getPreset(id);
   if (preset) announce(`${preset.firm} ${pick(preset.variant, getLocale())}`);
 });
 
-function renderPresetNote(presetId: string): void {
-  const preset = getPreset(presetId);
-  if (!preset || preset.id === CUSTOM_PRESET_ID) {
+/**
+ * Renders the reference note for the preset the user last applied.
+ *
+ * Driven by `presetOrigin` (never "custom") so the official rules, the source
+ * URL and the caveats survive manual edits — they used to disappear on the first
+ * keystroke, exactly when a user starts exploring.
+ */
+function renderPresetNote(presetId: string, presetOrigin: string): void {
+  const preset = getPreset(presetOrigin);
+  if (!preset) {
     presetNote.hidden = true;
     presetNote.replaceChildren();
     return;
@@ -122,19 +142,31 @@ function renderPresetNote(presetId: string): void {
     .filter(Boolean)
     .join(' · ');
 
-  const badge = h('span', {
+  const verified = h('span', {
     class: `badge badge--confidence badge--${preset.confidence}`,
-    text: `verified ${preset.verifiedAt}`,
+    text: dict.presetVerified.replace('{month}', preset.verifiedAt),
   });
 
-  presetNote.hidden = false;
-  presetNote.replaceChildren(
+  const children: Node[] = [
     h('strong', { text: head }),
     document.createTextNode(' '),
-    badge,
+    verified,
+  ];
+
+  if (presetId === CUSTOM_PRESET_ID) {
+    children.push(
+      document.createTextNode(' '),
+      h('span', { class: 'badge badge--modified', text: dict.presetModified }),
+    );
+  }
+
+  children.push(
     document.createTextNode(` ${pick(preset.note, locale)} `),
     h('em', { text: dict.presetDisclaimer }),
   );
+
+  presetNote.hidden = false;
+  presetNote.replaceChildren(...children);
 }
 
 /* ------------------------------------------------------------------ language */
@@ -179,9 +211,14 @@ function applyTranslations(): void {
 
   must<HTMLElement>('#footer-disclaimer').textContent = dict.footerDisclaimer;
   must<HTMLElement>('#footer-model').textContent = 'P = (D / (D + T))^N';
-  const credit = must<HTMLAnchorElement>('#footer-credit');
-  credit.textContent = dict.footerCredit;
-  credit.href = CREDIT_URL;
+
+  // Repo shortcut: href/text come from the constants so a fork only edits one file.
+  const ghLink = must<HTMLAnchorElement>('#gh-link');
+  ghLink.href = PROJECT_URL;
+  const ghLabel = `${dict.githubLabel} — ${GITHUB_HANDLE}`;
+  ghLink.setAttribute('aria-label', ghLabel);
+  ghLink.title = ghLabel;
+  must<HTMLElement>('#gh-name').textContent = GITHUB_HANDLE;
 
   // Dynamic pieces that are not plain `data-i18n` swaps.
   buildPresetSelect();
@@ -189,7 +226,7 @@ function applyTranslations(): void {
   form.refreshLabels();
   metrics.refreshLabels();
   compare.refreshLabels();
-  renderPresetNote(store.get().presetId);
+  renderPresetNote(store.get().presetId, store.get().presetOrigin);
   renderResult(store.get().result);
   renderScenarios(store.get().scenarios);
 
@@ -263,9 +300,9 @@ function syncPresetSelect(presetId: string): void {
 
 // Views re-render only when the slice they display actually changed: metrics and
 // the ROI card react to every recalculation, but the scenario table and the
-// preset note are keyed by reference identity so typing never rebuilds them.
+// preset note are keyed by identity so typing never rebuilds them.
 let lastScenarios: readonly SavedScenario[] | null = null;
-let lastPresetId: string | null = null;
+let lastPresetKey: string | null = null;
 
 store.subscribe((state) => {
   renderResult(state.result);
@@ -275,10 +312,12 @@ store.subscribe((state) => {
     renderScenarios(state.scenarios);
   }
 
-  if (state.presetId !== lastPresetId) {
-    lastPresetId = state.presetId;
+  // Both ids matter: `presetId` drives the dropdown, `presetOrigin` the note.
+  const presetKey = `${state.presetId}|${state.presetOrigin}`;
+  if (presetKey !== lastPresetKey) {
+    lastPresetKey = presetKey;
     syncPresetSelect(state.presetId);
-    renderPresetNote(state.presetId);
+    renderPresetNote(state.presetId, state.presetOrigin);
   }
 });
 
@@ -295,7 +334,6 @@ function loadScenario(scenario: SavedScenario): void {
 must<HTMLButtonElement>('#reset-btn').addEventListener('click', () => {
   store.resetToDefaults();
   form.write({ ...store.get().inputs });
-  renderPresetNote(store.get().presetId);
   toast(t().reset, 'success');
 });
 
@@ -414,6 +452,7 @@ must<HTMLButtonElement>('#mobile-roi-bar').addEventListener('click', () => {
 
 must<HTMLElement>('#brand-logo').innerHTML = LOGO_SVG;
 must<HTMLElement>('#roi-icon').innerHTML = icon('chart', { size: 13, strokeWidth: 2.2 });
+must<HTMLElement>('#gh-icon').innerHTML = GITHUB_SVG;
 must<HTMLElement>('#form-pane').append(form.root);
 must<HTMLElement>('#metrics-host').append(metrics.root);
 must<HTMLElement>('#compare-host').append(compare.root);

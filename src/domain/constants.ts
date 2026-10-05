@@ -31,19 +31,22 @@ export const STORAGE_KEY_LANG = 'pf-roi-calculator:lang:v1';
 export const MAX_SCENARIOS = 20;
 
 /**
- * Canonical public URL of the project.
+ * GitHub account that owns the project. Single source of truth: the repo URL is
+ * derived from it, and it is what the header shortcut displays.
  *
- * Printed on exported share images and encoded into their QR code. When the app
- * is served over http(s) the *live* URL is preferred, so a self-hosted copy
- * advertises itself; this constant is the fallback used by the desktop build.
- *
- * >>> Change this to your own repository when you fork the project. <<<
+ * >>> Change this to your own handle when you fork the project. <<<
  */
-export const PROJECT_URL = 'https://github.com/MFLS2023/pf-roi-calculator';
+export const GITHUB_HANDLE = 'MFLS2023';
+
+/** Repository name, kept separate so the two can be changed independently. */
+export const REPO_NAME = 'pf-roi-calculator';
 
 /**
- * Bilibili homepage of the creator whose prop-firm rule walkthroughs inspired
- * this project (see the Acknowledgements section of the README). Linked from
- * the app footer.
+ * Canonical public URL of the project.
+ *
+ * Used for the header repo shortcut, printed on exported share images and
+ * encoded into their QR code. When the app is served over http(s) the *live*
+ * URL is preferred for the QR, so a self-hosted copy advertises itself; this
+ * constant is the fallback used by the desktop build.
  */
-export const CREDIT_URL = 'https://space.bilibili.com/101513971';
+export const PROJECT_URL = `https://github.com/${GITHUB_HANDLE}/${REPO_NAME}`;

@@ -106,12 +106,14 @@ button {
 /* Desktop: widen and switch to a two-column workbench. */
 @media (min-width: 1024px) {
   body {
-    padding-top: 48px;
+    /* Kept small on purpose: the whole tool is designed to land inside a
+       900px-tall viewport without scrolling. */
+    padding-top: 20px;
   }
 
   .app {
     max-width: 1040px;
-    padding: 28px 26px 24px;
+    padding: 20px 24px 18px;
   }
 }
 
@@ -176,6 +178,67 @@ button {
   flex: 0 0 auto;
 }
 
+/* On narrow phones the brand + three action chips do not fit on one line, and
+   the title gets clipped mid-character. Let the actions drop to their own
+   right-aligned row instead. */
+@media (max-width: 560px) {
+  .app__header {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .app__header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   GitHub link — repo shortcut in the top-right corner
+   -------------------------------------------------------------------------- */
+
+.gh-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-chip);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface-chip);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+.gh-link:hover {
+  background: var(--surface-chip-hover);
+  color: var(--text-label);
+}
+
+.gh-link:active {
+  transform: scale(0.96);
+}
+
+.gh-link svg {
+  display: block;
+  flex: 0 0 auto;
+}
+
+/* Below this width even the wrapped action row runs out of space, so the
+   handle collapses to the bare GitHub mark (the link keeps its aria-label). */
+@media (max-width: 360px) {
+  .gh-link__name {
+    display: none;
+  }
+
+  .gh-link {
+    padding: 0 8px;
+  }
+}
+
 /* ==========================================================================
    Toolbar (preset + language)
    ========================================================================== */
@@ -189,13 +252,13 @@ button {
 
 .app__disclaimer {
   font-size: 11px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--text-faint);
   background: var(--surface-subtle);
   border: 1px solid var(--border-soft);
   border-radius: 10px;
-  padding: 8px 10px;
-  margin-bottom: 16px;
+  padding: 7px 10px;
+  margin-bottom: 12px;
 }
 
 /* ==========================================================================
@@ -212,38 +275,12 @@ button {
 @media (min-width: 1024px) {
   .app__body {
     grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
-    grid-template-rows: auto auto;
     gap: 22px;
   }
 
-  /* Left column: inputs, then the comparison panel underneath — the left
-     column ends up clearly taller than the results pane, giving the sticky
-     pane a long scroll distance to follow. */
-  .pane--form {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  #compare-host {
-    grid-column: 1;
-    grid-row: 2;
-    min-width: 0;
-  }
-
-  .pane--results {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: start;
-  }
-
-  /* Sticky only on tall-enough viewports; on short screens the pane stays in
-     normal flow so buttons are never clipped. */
-  @media (min-height: 800px) {
-    .pane--results {
-      position: sticky;
-      top: 24px;
-    }
-  }
+  /* No `position: sticky` here on purpose. The comparison panel now lives in
+     the right column, so that column is the taller one — sticky would have
+     nothing to travel through and would only risk clipping the last button. */
 }
 
 .pane {
@@ -255,8 +292,8 @@ button {
    ========================================================================== */
 
 .app__footer {
-  margin-top: 18px;
-  padding-top: 14px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid var(--border-soft);
   text-align: center;
 }
@@ -274,19 +311,4 @@ button {
   color: var(--text-muted);
   padding: 1px 5px;
   border-radius: 4px;
-}
-
-.app__footer-credit {
-  margin-top: 6px;
-}
-
-.app__footer-credit a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid var(--accent-bar);
-  padding-bottom: 1px;
-}
-
-.app__footer-credit a:hover {
-  color: var(--accent-strong);
 }

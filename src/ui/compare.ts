@@ -1,4 +1,11 @@
-import { formatMoney, formatPercent, formatSignedPercent, toneOf } from '../domain/formatter';
+import {
+  PLACEHOLDER,
+  formatCount,
+  formatMoney,
+  formatPercent,
+  formatSignedPercent,
+  toneOf,
+} from '../domain/formatter';
 import type { SavedScenario } from '../domain/types';
 import { t } from '../i18n';
 import { h } from './dom';
@@ -8,8 +15,8 @@ import { icon } from './icons';
  * The "compare scenarios" panel.
  *
  * Deliberately dumb: it renders whatever list it is handed and emits intent via
- * callbacks. All state lives in `app.ts`, which makes the panel trivially
- * re-renderable after any locale or data change.
+ * callbacks. All state lives in the store (`src/state/store.ts`), which makes the
+ * panel trivially re-renderable after any locale or data change.
  */
 
 export interface CompareCallbacks {
@@ -23,11 +30,8 @@ export interface CompareController {
   root: HTMLElement;
   render(scenarios: readonly SavedScenario[]): void;
   refreshLabels(): void;
-  /** Read the name field WITHOUT clearing it. */
-  peekName(): string;
   /** Read + clear the name input (used right after a save). */
   consumeName(): string;
-  focusName(): void;
 }
 
 function toneClass(roi: number): string {
@@ -133,7 +137,7 @@ export function createCompare(callbacks: CompareCallbacks): CompareController {
           h('td', {}, [nameCell]),
           h('td', { class: toneClass(scenario.roi), text: formatSignedPercent(scenario.roi, 2) }),
           h('td', { text: formatPercent(scenario.totalPassRate, 4) }),
-          h('td', { text: accounts > 0 ? accounts.toFixed(2) : '--' }),
+          h('td', { text: accounts > 0 ? formatCount(accounts, 2) : PLACEHOLDER }),
           h('td', { text: formatMoney(scenario.totalCost) }),
           h('td', {}, [h('div', { class: 'compare__row-actions' }, [loadButton, deleteButton])]),
         ],
@@ -172,18 +176,10 @@ export function createCompare(callbacks: CompareCallbacks): CompareController {
       if (label) label.textContent = d.compareSave;
     },
 
-    peekName(): string {
-      return nameInput.value;
-    },
-
     consumeName(): string {
       const value = nameInput.value;
       nameInput.value = '';
       return value;
-    },
-
-    focusName(): void {
-      nameInput.focus();
     },
   };
 }
