@@ -1,6 +1,6 @@
 import qrcode from 'qrcode-generator';
-import { formatCount, formatMoney, formatPercent, formatSignedPercent, toneOf } from '../core/formatter';
-import type { CalculatorResult } from '../core/types';
+import { formatCount, formatMoney, formatPercent, formatSignedPercent, toneOf } from '../domain/formatter';
+import type { CalculatorResult } from '../domain/types';
 import type { Dict } from '../i18n/zh-CN';
 
 /**
@@ -20,17 +20,27 @@ const CONTENT_W = CARD.w - PAD * 2;
 const FONT_STACK =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif';
 
+/**
+ * Terminal-ledger palette for the exported card (dark, like the app's default
+ * theme). P&L colours follow the CN market convention: gains are red, losses
+ * are green.
+ */
 const INK = {
-  strong: '#0f172a',
-  title: '#1e293b',
-  muted: '#64748b',
-  faint: '#94a3b8',
-  line: '#e2e8f0',
-  positive: '#10b981',
-  negative: '#ef4444',
-  card: '#ffffff',
-  sunken: '#f8fafc',
+  strong: '#eceff4',
+  title: '#dfe4ec',
+  muted: '#99a3b0',
+  faint: '#6b7684',
+  line: '#26303e',
+  positive: '#ff6b6b',
+  negative: '#3ddc97',
+  card: '#151a22',
+  sunken: '#1a212c',
+  borderSoft: '#212a36',
 };
+
+const PAGE_BG = { from: '#0c0f14', to: '#151b26' } as const;
+const ACCENT = { from: '#f5b04e', to: '#d97706' } as const;
+const ACCENT_INK = '#1a1206';
 
 export interface ShareImageInput {
   result: CalculatorResult;
@@ -127,14 +137,14 @@ export function drawShareCard(input: ShareImageInput): HTMLCanvasElement {
 
   /* ---- page background ---- */
   const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#eef2f6');
-  bg.addColorStop(1, '#e0e7ff');
+  bg.addColorStop(0, PAGE_BG.from);
+  bg.addColorStop(1, PAGE_BG.to);
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
   /* ---- card ---- */
   ctx.save();
-  ctx.shadowColor = 'rgba(15, 23, 42, 0.10)';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
   ctx.shadowBlur = 60;
   ctx.shadowOffsetY = 24;
   roundRect(ctx, CARD.x, CARD.y, CARD.w, CARD.h, CARD.r);
@@ -144,18 +154,18 @@ export function drawShareCard(input: ShareImageInput): HTMLCanvasElement {
 
   /* ---- header ---- */
   const logoGradient = ctx.createLinearGradient(CONTENT_X, 96, CONTENT_X + 72, 168);
-  logoGradient.addColorStop(0, '#4f46e5');
-  logoGradient.addColorStop(1, '#7c3aed');
-  roundRect(ctx, CONTENT_X, 96, 72, 72, 20);
+  logoGradient.addColorStop(0, ACCENT.from);
+  logoGradient.addColorStop(1, ACCENT.to);
+  roundRect(ctx, CONTENT_X, 96, 72, 72, 16);
   ctx.fillStyle = logoGradient;
   ctx.fill();
 
-  // Mini bar chart glyph inside the logo.
-  ctx.fillStyle = '#ffffff';
+  // Mini bar chart glyph inside the logo (ink bars on amber).
+  ctx.fillStyle = ACCENT_INK;
   const barBase = 150;
   [0.55, 0.8, 1].forEach((scale, index) => {
     const barH = 34 * scale;
-    ctx.globalAlpha = 1 - index * 0.15;
+    ctx.globalAlpha = 1 - index * 0.22;
     ctx.fillRect(CONTENT_X + 18 + index * 14, barBase - barH, 9, barH);
   });
   ctx.globalAlpha = 1;
@@ -238,10 +248,10 @@ export function drawShareCard(input: ShareImageInput): HTMLCanvasElement {
     const x = CONTENT_X + col * (tileW + gap);
     const y = gridTop + row * (tileH + gap);
 
-    roundRect(ctx, x, y, tileW, tileH, 20);
+    roundRect(ctx, x, y, tileW, tileH, 14);
     ctx.fillStyle = INK.sunken;
     ctx.fill();
-    ctx.strokeStyle = '#eef2f7';
+    ctx.strokeStyle = INK.borderSoft;
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -259,9 +269,12 @@ export function drawShareCard(input: ShareImageInput): HTMLCanvasElement {
   const footerY = 1218;
   const qrSize = 132;
 
-  roundRect(ctx, CONTENT_X + CONTENT_W - qrSize, footerY - 16, qrSize, qrSize, 12);
-  ctx.fillStyle = INK.card;
+  roundRect(ctx, CONTENT_X + CONTENT_W - qrSize, footerY - 16, qrSize, qrSize, 10);
+  ctx.fillStyle = INK.sunken;
   ctx.fill();
+  ctx.strokeStyle = INK.borderSoft;
+  ctx.lineWidth = 2;
+  ctx.stroke();
   drawQr(ctx, projectUrl, CONTENT_X + CONTENT_W - qrSize + 6, footerY - 10, qrSize - 12, INK.strong);
 
   ctx.textAlign = 'left';

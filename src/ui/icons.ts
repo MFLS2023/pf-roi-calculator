@@ -56,10 +56,10 @@ export function icon(name: IconName, options: IconOptions = {}): string {
   );
 }
 
-/** The filled bar-chart glyph used in the app logo. */
+/** The filled bar-chart glyph used in the app logo (ink bars on amber). */
 export const LOGO_SVG =
   '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
-  '<rect x="5" y="12" width="3.2" height="6" rx="1" fill="#ffffff"/>' +
-  '<rect x="10.4" y="8" width="3.2" height="10" rx="1" fill="#ffffff" opacity="0.85"/>' +
-  '<rect x="15.8" y="4" width="3.2" height="14" rx="1" fill="#ffffff" opacity="0.7"/>' +
+  '<rect x="5" y="12" width="3.2" height="6" rx="1" fill="#1a1206"/>' +
+  '<rect x="10.4" y="8" width="3.2" height="10" rx="1" fill="#1a1206" opacity="0.78"/>' +
+  '<rect x="15.8" y="4" width="3.2" height="14" rx="1" fill="#1a1206" opacity="0.56"/>' +
   '</svg>';

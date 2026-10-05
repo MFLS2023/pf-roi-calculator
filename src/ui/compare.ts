@@ -1,5 +1,5 @@
-import { formatMoney, formatPercent, formatSignedPercent, toneOf } from '../core/formatter';
-import type { SavedScenario } from '../core/types';
+import { formatMoney, formatPercent, formatSignedPercent, toneOf } from '../domain/formatter';
+import type { SavedScenario } from '../domain/types';
 import { t } from '../i18n';
 import { h } from './dom';
 import { icon } from './icons';

@@ -1,5 +1,5 @@
-import { STORAGE_KEY_LANG } from '../core/constants';
-import { readString, writeString } from '../core/storage';
+import { STORAGE_KEY_LANG } from '../domain/constants';
+import { readString, writeString } from '../platform/storage';
 import { en } from './en';
 import { zhCN, type Dict } from './zh-CN';
 import { LOCALES, type Locale } from './types';

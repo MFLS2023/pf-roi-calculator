@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { calculate, sanitizeInputs } from '../src/core/calculator';
-import { DEFAULT_INPUTS, MIN_DAYS } from '../src/core/constants';
+import { calculate, sanitizeInputs } from '../src/domain/calculator';
+import { DEFAULT_INPUTS, MIN_DAYS } from '../src/domain/constants';
 import { PRESETS, REFERENCE_PRESET_ID, getPreset } from '../src/data/presets';
 import { LOCALES } from '../src/i18n/types';
 

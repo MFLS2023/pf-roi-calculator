@@ -23,7 +23,11 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   font-family: var(--font-sans);
-  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(160deg, var(--bg-from) 0%, var(--bg-to) 100%);
+  background-size: 36px 36px, 36px 36px, auto;
   background-attachment: fixed;
   color: var(--text-strong);
   -webkit-font-smoothing: antialiased;
@@ -56,7 +60,7 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--brand-2);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -135,7 +139,7 @@ button {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-logo);
-  background: linear-gradient(135deg, var(--brand-logo-1), var(--brand-logo-2));
+  background: var(--btn-primary-bg);
   display: grid;
   place-items: center;
   box-shadow: var(--shadow-logo);
@@ -246,4 +250,19 @@ button {
   color: var(--text-muted);
   padding: 1px 5px;
   border-radius: 4px;
+}
+
+.app__footer-credit {
+  margin-top: 6px;
+}
+
+.app__footer-credit a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-bar);
+  padding-bottom: 1px;
+}
+
+.app__footer-credit a:hover {
+  color: var(--accent-strong);
 }

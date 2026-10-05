@@ -1,6 +1,6 @@
 import { MAX_SCENARIOS, STORAGE_KEY_SCENARIOS } from './constants';
 import { calculate, sanitizeInputs } from './calculator';
-import { readJSON, writeJSON } from './storage';
+import { readJSON, writeJSON } from '../platform/storage';
 import type { CalculatorInputs, SavedScenario } from './types';
 
 /**

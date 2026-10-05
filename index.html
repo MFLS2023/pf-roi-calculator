@@ -8,7 +8,7 @@
       name="description"
       content="用赌徒破产模型测算 Prop Firm 考试与出金通过率、期望买号数量与投产比（ROI）。支持离线使用，可安装到手机与桌面。"
     />
-    <meta name="theme-color" content="#6366f1" />
+    <meta name="theme-color" content="#0c0f14" />
     <meta name="color-scheme" content="light dark" />
     <meta name="format-detection" content="telephone=no" />
 
@@ -86,6 +86,7 @@
             <div class="roi__foot" id="roi-foot"></div>
             <div class="roi__note" id="roi-note"></div>
             <div class="roi__verdict is-neutral is-hidden" id="roi-verdict"></div>
+            <div class="roi__legend" data-i18n="roiLegend">红涨绿跌 · 遵循国内行情配色习惯</div>
           </div>
 
           <div class="actions">
@@ -102,6 +103,9 @@
       <footer class="app__footer">
         <p><code id="footer-model">P = (D / (D + T))^N</code></p>
         <p id="footer-disclaimer"></p>
+        <p class="app__footer-credit">
+          <a id="footer-credit" href="https://space.bilibili.com/101513971" target="_blank" rel="noopener noreferrer"></a>
+        </p>
       </footer>
     </div>
 

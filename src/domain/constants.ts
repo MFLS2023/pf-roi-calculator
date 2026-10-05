@@ -40,3 +40,10 @@ export const MAX_SCENARIOS = 20;
  * >>> Change this to your own repository when you fork the project. <<<
  */
 export const PROJECT_URL = 'https://github.com/MFLS2023/pf-roi-calculator';
+
+/**
+ * Bilibili homepage of the creator whose prop-firm rule walkthroughs inspired
+ * this project (see the Acknowledgements section of the README). Linked from
+ * the app footer.
+ */
+export const CREDIT_URL = 'https://space.bilibili.com/101513971';

@@ -1,4 +1,4 @@
-import type { InputKey } from '../core/types';
+import type { InputKey } from '../domain/types';
 import type { Dict } from '../i18n/zh-CN';
 
 /**

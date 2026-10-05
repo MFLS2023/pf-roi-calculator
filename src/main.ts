@@ -2,14 +2,13 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
 
-import { calculate } from './core/calculator';
-import { DEFAULT_INPUTS, MAX_SCENARIOS, PROJECT_URL } from './core/constants';
-import { formatMoney, formatSignedPercent, toneOf } from './core/formatter';
-import { createScenario, loadScenarios, persistScenarios } from './core/scenarios';
-import type { CalculatorInputs, CalculatorResult, SavedScenario } from './core/types';
-import { PRESETS, REFERENCE_PRESET_ID, getPreset, presetAccountSizeLabel } from './data/presets';
+import { CREDIT_URL, PROJECT_URL } from './domain/constants';
+import { formatMoney, formatSignedPercent, toneOf } from './domain/formatter';
+import type { CalculatorResult, SavedScenario } from './domain/types';
+import { PRESETS, getPreset, presetAccountSizeLabel } from './data/presets';
 import { applyDocumentLocale, getLocale, onLocaleChange, setLocale, t } from './i18n';
 import { LOCALES, LOCALE_LABELS, pick, type Locale } from './i18n/types';
+import { CUSTOM_PRESET_ID, createAppStore } from './state/store';
 import { createCompare } from './ui/compare';
 import { h, must, setText } from './ui/dom';
 import { downloadShareImage } from './ui/export-image';
@@ -19,31 +18,54 @@ import { createMetrics } from './ui/metrics';
 import { announce, toast } from './ui/toast';
 
 /**
- * Application orchestrator.
+ * View wiring.
  *
- * Owns all mutable state (`result`, `scenarios`, `activePresetId`) and wires the
- * presentational modules together. The UI modules never talk to each other —
- * everything funnels through here, which keeps re-rendering predictable.
+ * All mutable state lives in the store (`src/state/store.ts`); this module only
+ * builds the views, turns DOM events into store actions, and re-renders on
+ * store changes. No business logic lives here.
  */
 
-const CUSTOM_PRESET_ID = 'custom';
-
-let result: CalculatorResult = calculate({ ...DEFAULT_INPUTS });
-let scenarios: SavedScenario[] = loadScenarios();
-let activePresetId: string = REFERENCE_PRESET_ID;
-/** Set while a preset is being applied so the "custom" detector does not fire. */
-let applyingPreset = false;
+const store = createAppStore();
 
 /* --------------------------------------------------------------- controllers */
 
-const form = createForm({ onChange: onInputChange, onSubmit: onCalculate });
+const form = createForm({
+  onChange: () => store.setInputs(form.read()),
+  onSubmit: () => {
+    store.setInputs(form.read());
+    announce(`${t().roiTitle} ${formatSignedPercent(store.get().result.roi, 2)}`);
+  },
+});
 const metrics = createMetrics();
 
+function saveFromInput(rawName: string): void {
+  const fallback = autoScenarioName(getPreset(store.get().presetId));
+  const scenario = store.saveScenario(rawName.trim() || fallback);
+  if (scenario === null) {
+    toast(t().compareLimitReached, 'error');
+    return;
+  }
+  compare.consumeName();
+  toast(`${t().compareSave}: ${scenario.name}`, 'success');
+}
+
+function autoScenarioName(preset: ReturnType<typeof getPreset>): string {
+  if (preset && preset.id !== CUSTOM_PRESET_ID) {
+    const size = presetAccountSizeLabel(preset);
+    return [preset.firm, size].filter(Boolean).join(' ');
+  }
+  return `${t().compareTh} ${store.get().scenarios.length + 1}`;
+}
+
 const compare = createCompare({
-  onSave: (name) => saveScenario(name),
-  onDelete: (id) => deleteScenario(id),
+  onSave: (name) => saveFromInput(name),
+  onDelete: (id) => store.deleteScenario(id),
   onLoad: (scenario) => loadScenario(scenario),
-  onClearAll: () => clearScenarios(),
+  onClearAll: () => {
+    if (store.get().scenarios.length === 0) return;
+    if (!window.confirm(t().compareConfirmClear)) return;
+    store.clearScenarios();
+  },
 });
 
 /* ------------------------------------------------------------------- presets */
@@ -69,7 +91,7 @@ function buildPresetSelect(): void {
     options.push(h('option', { value: preset.id, text: label }));
   }
   presetSelect.replaceChildren(...options);
-  presetSelect.value = activePresetId;
+  presetSelect.value = store.get().presetId;
 }
 
 presetWrap.replaceChildren(
@@ -81,19 +103,14 @@ presetWrap.replaceChildren(
 presetSelect.addEventListener('change', () => {
   const id = presetSelect.value;
   if (id === CUSTOM_PRESET_ID) return;
+  if (!store.applyPreset(id)) return;
+  form.write(store.get().inputs);
   const preset = getPreset(id);
-  if (!preset) return;
-  activePresetId = id;
-  applyingPreset = true;
-  form.write(preset.inputs);
-  recalculate();
-  applyingPreset = false;
-  renderPresetNote();
-  announce(`${preset.firm} ${pick(preset.variant, getLocale())}`);
+  if (preset) announce(`${preset.firm} ${pick(preset.variant, getLocale())}`);
 });
 
-function renderPresetNote(): void {
-  const preset = getPreset(activePresetId);
+function renderPresetNote(presetId: string): void {
+  const preset = getPreset(presetId);
   if (!preset || preset.id === CUSTOM_PRESET_ID) {
     presetNote.hidden = true;
     presetNote.replaceChildren();
@@ -162,6 +179,9 @@ function applyTranslations(): void {
 
   must<HTMLElement>('#footer-disclaimer').textContent = dict.footerDisclaimer;
   must<HTMLElement>('#footer-model').textContent = 'P = (D / (D + T))^N';
+  const credit = must<HTMLAnchorElement>('#footer-credit');
+  credit.textContent = dict.footerCredit;
+  credit.href = CREDIT_URL;
 
   // Dynamic pieces that are not plain `data-i18n` swaps.
   buildPresetSelect();
@@ -169,9 +189,9 @@ function applyTranslations(): void {
   form.refreshLabels();
   metrics.refreshLabels();
   compare.refreshLabels();
-  renderPresetNote();
-  renderResult(result);
-  renderScenarios();
+  renderPresetNote(store.get().presetId);
+  renderResult(store.get().result);
+  renderScenarios(store.get().scenarios);
 
   const exportBtn = must<HTMLButtonElement>('#export-btn');
   exportBtn.innerHTML = `${icon('download', { size: 14, strokeWidth: 2.2 })}<span>${dict.exportImage}</span>`;
@@ -184,39 +204,6 @@ function applyTranslations(): void {
 onLocaleChange(() => {
   applyTranslations();
 });
-
-/* ---------------------------------------------------------------- calculation */
-
-function onInputChange(): void {
-  recalculate();
-  if (!applyingPreset) syncPresetSelection();
-}
-
-function onCalculate(): void {
-  recalculate();
-  announce(`${t().roiTitle} ${formatSignedPercent(result.roi, 2)}`);
-}
-
-function recalculate(): void {
-  result = calculate(form.read());
-  renderResult(result);
-}
-
-/** Flip the select to "custom" as soon as the inputs drift from the preset. */
-function syncPresetSelection(): void {
-  const preset = getPreset(activePresetId);
-  const current = form.read();
-  if (!preset || preset.id === CUSTOM_PRESET_ID) return;
-
-  const matches = (Object.keys(preset.inputs) as Array<keyof CalculatorInputs>).every(
-    (key) => preset.inputs[key] === current[key],
-  );
-  if (!matches) {
-    activePresetId = CUSTOM_PRESET_ID;
-    presetSelect.value = CUSTOM_PRESET_ID;
-    presetNote.hidden = true;
-  }
-}
 
 /* -------------------------------------------------------------------- render */
 
@@ -256,73 +243,38 @@ function renderResult(next: CalculatorResult): void {
   roiFoot.textContent = `${dict.roiActualPayout} ${formatMoney(next.inputs.actualPayout)}`;
 }
 
-function renderScenarios(): void {
+function renderScenarios(scenarios: readonly SavedScenario[]): void {
   compare.render(scenarios);
 }
 
-/* ----------------------------------------------------------------- scenarios */
-
-function autoScenarioName(): string {
-  const preset = getPreset(activePresetId);
-  if (preset && preset.id !== CUSTOM_PRESET_ID) {
-    const size = presetAccountSizeLabel(preset);
-    return [preset.firm, size].filter(Boolean).join(' ');
-  }
-  return `${t().compareTh} ${scenarios.length + 1}`;
+/** Keep the preset dropdown in sync with the store without rebuilding options. */
+function syncPresetSelect(presetId: string): void {
+  if (presetSelect.value !== presetId) presetSelect.value = presetId;
 }
 
-function saveScenario(rawName: string): boolean {
-  if (scenarios.length >= MAX_SCENARIOS) {
-    toast(t().compareLimitReached, 'error');
-    return false;
-  }
-  const name = rawName.trim() || autoScenarioName();
-  const scenario = createScenario(name, form.read());
-  scenarios = [...scenarios, scenario];
-  persistScenarios(scenarios);
-  renderScenarios();
-  compare.consumeName();
-  toast(`${t().compareSave}: ${scenario.name}`, 'success');
-  return true;
-}
+/* ------------------------------------------------- store → view subscription */
 
-function deleteScenario(id: string): void {
-  scenarios = scenarios.filter((item) => item.id !== id);
-  persistScenarios(scenarios);
-  renderScenarios();
-}
+store.subscribe((state) => {
+  renderResult(state.result);
+  renderScenarios(state.scenarios);
+  syncPresetSelect(state.presetId);
+  renderPresetNote(state.presetId);
+});
 
-function clearScenarios(): void {
-  if (scenarios.length === 0) return;
-  if (!window.confirm(t().compareConfirmClear)) return;
-  scenarios = [];
-  persistScenarios(scenarios);
-  renderScenarios();
-}
+/* ------------------------------------------------------------------ handlers */
 
 function loadScenario(scenario: SavedScenario): void {
-  activePresetId = CUSTOM_PRESET_ID;
-  applyingPreset = true;
   form.write(scenario.inputs);
-  recalculate();
-  applyingPreset = false;
-  presetSelect.value = CUSTOM_PRESET_ID;
-  presetNote.hidden = true;
+  store.applyInputs(scenario.inputs, CUSTOM_PRESET_ID);
   toast(`${t().compareLoad}: ${scenario.name}`, 'success');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
 }
 
-/* ------------------------------------------------------------------- actions */
-
 must<HTMLButtonElement>('#reset-btn').addEventListener('click', () => {
-  activePresetId = REFERENCE_PRESET_ID;
-  applyingPreset = true;
-  form.write({ ...DEFAULT_INPUTS });
-  recalculate();
-  applyingPreset = false;
-  presetSelect.value = REFERENCE_PRESET_ID;
-  renderPresetNote();
+  store.resetToDefaults();
+  form.write({ ...store.get().inputs });
+  renderPresetNote(store.get().presetId);
   toast(t().reset, 'success');
 });
 
@@ -333,7 +285,8 @@ must<HTMLButtonElement>('#export-btn').addEventListener('click', async () => {
   button.disabled = true;
   button.innerHTML = `<span class="btn__spinner"></span><span>${dict.exporting}</span>`;
 
-  const preset = getPreset(activePresetId);
+  const { result, presetId } = store.get();
+  const preset = getPreset(presetId);
   const context =
     preset && preset.id !== CUSTOM_PRESET_ID
       ? [preset.firm, presetAccountSizeLabel(preset), pick(preset.variant, getLocale())]
@@ -359,17 +312,10 @@ must<HTMLButtonElement>('#export-btn').addEventListener('click', async () => {
 
 // Honours a name typed into the comparison panel; falls back to an auto name.
 must<HTMLButtonElement>('#save-btn').addEventListener('click', () => {
-  saveScenario(compare.peekName());
+  saveFromInput(compare.peekName());
 });
 
-/**
- * Prefer the live URL (self-hosted copies advertise themselves), else the repo.
- *
- * The Tauri shell is excluded explicitly: its Windows webview origin is
- * `http://tauri.localhost`, which satisfies the `http:` check but is meaningless
- * to a QR-code scanner. macOS/Linux use a custom `tauri:` scheme and already
- * fail the protocol check naturally.
- */
+/** Prefer the live URL (self-hosted copies advertise themselves), else the repo. */
 function shareUrl(): string {
   try {
     const { protocol, origin, pathname, hostname } = window.location;
@@ -453,9 +399,8 @@ if (needsManualInstallHint()) installBtn.classList.remove('is-hidden');
 // Honour a `?preset=` deep link, e.g. `?preset=ftmo-100k-1step`.
 try {
   const requested = new URLSearchParams(window.location.search).get('preset');
-  if (requested && getPreset(requested)) {
-    presetSelect.value = requested;
-    presetSelect.dispatchEvent(new Event('change'));
+  if (requested && store.applyPreset(requested)) {
+    form.write(store.get().inputs);
   }
 } catch {
   /* ignore */

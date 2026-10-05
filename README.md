@@ -36,13 +36,10 @@ network access at runtime. One runtime dependency, total.
 
 ## Screenshots
 
-| Desktop | Mobile | Dark |
-| --- | --- | --- |
-| ![Desktop](./docs/screenshot-desktop.png) | ![Mobile](./docs/screenshot-mobile.png) | ![Dark](./docs/screenshot-dark.png) |
-
-Exported share image (rendered entirely on-device with Canvas):
-
-![Share image](./docs/screenshot-share-image.png)
+See it live: run `npm run dev`, open the hosted build, or double-click
+`standalone/PF-ROI-Calculator.standalone.html`. The current theme is the
+dark-first "terminal ledger" look shown above; screenshots will return with
+the next tagged release.
 
 ---
 
@@ -146,7 +143,9 @@ ROI = (actualPayout − totalCost) / totalCost × 100%
 | Total cost | `$2276` |
 | **ROI** | **`-20.92%`** |
 
-Negative ROI is shown in red, positive in green.
+Negative expectancy is a *loss* — the UI colours follow the Chinese market
+convention (红涨绿跌): **gains are red, losses are green**. An in-app legend
+spells this out, and English users get a translated hint.
 
 ---
 
@@ -231,7 +230,9 @@ Adding a firm is a one-object change in `src/data/presets.ts` — see
   side, best row highlighted, persisted locally.
 - **Share image export** — 1080×1350 PNG with a QR code, drawn on-device with
   Canvas. No `html2canvas`, no server.
-- **Dark mode** — follows the OS automatically.
+- **Dark mode** — dark-first "terminal ledger" theme with a warm-paper light mode.
+- **CN market colours** — gains are red, losses are green (红涨绿跌), with an
+  in-app legend for international users.
 - **Reduced motion** — honours the OS `prefers-reduced-motion` setting.
 - **Deep links** — `?preset=ftmo-100k-1step` loads a preset directly.
 - **Zero-configurable-failure** — every input path is sanitised; no combination of
@@ -259,7 +260,9 @@ Output: **~26 kB gzipped** of JavaScript and CSS.
 
 ```
 src/
-  core/         pure logic — calculator, formatter, storage, scenarios, constants
+  domain/       pure logic — calculator, formatter, scenarios, constants, types
+  platform/     browser plumbing — safe localStorage wrapper
+  state/        observable app store (unidirectional data flow)
   data/         declarative data — firm presets, form schema
   i18n/         dictionaries + locale store
   ui/           DOM modules — form, metrics, compare, export, toast, icons, dom
@@ -271,8 +274,9 @@ src-tauri/      Rust desktop shell
 ```
 
 Design tokens live in exactly one place (`src/styles/tokens.css`); every default
-input lives in exactly one place (`src/core/constants.ts`); every user-visible
-string lives in exactly one place (`src/i18n/`).
+input lives in exactly one place (`src/domain/constants.ts`); every
+user-visible string lives in exactly one place (`src/i18n/`); all mutable state
+flows through the observable store (`src/state/store.ts`).
 
 ---
 
@@ -342,6 +346,16 @@ git push origin v2.0.1
 - **Add a break-even calculator** — "what payout do I need for ROI = 0?"
 
 ---
+
+## Acknowledgements
+
+- **[Z-shen（Z叔）](https://space.bilibili.com/101513971)** — a futures prop-trading
+  educator on Bilibili. His walkthroughs of prop-firm rule mechanics (drawdown
+  types, consistency rules, winning days, buffers) and his expectancy-first way
+  of evaluating account prices directly inspired this project, and the
+  FundedNext Futures presets were sanity-checked against real cash-outs he
+  documented. 谢谢 Z神提供的灵感与讲解 — this tool exists because of that
+  material. Go follow the channel.
 
 ## Contributing
 

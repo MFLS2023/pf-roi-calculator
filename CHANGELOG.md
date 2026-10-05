@@ -9,12 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Original "terminal ledger" design language** — dark-first trading-terminal
+  theme (deep blue-black surfaces, amber accent, sharp radii, mono numerals,
+  subtle grid backdrop) with a warm-paper light mode. P&L colours follow the
+  Chinese market convention (红涨绿跌): gains are red, losses are green, with
+  an in-app legend for international users. The exported share image adopts the
+  same palette.
 - **FundedNext Futures presets** — `Rapid Pro 25K` and `Flex 50K`, verified
   against the official rules pages and real community cash-outs (2026-10).
   These follow the community "averaging convention": because FundedNext's 40%
   consistency rule forces at least 3 days, the profit fields hold the per-day
   share of the target (e.g. 800÷3≈267) with `days = 3`, which reproduces the
   numbers taught in community material (Rapid 25K → ~5.08 accounts, ~+52% ROI).
+- **Attribution** — an Acknowledgements section (both READMEs) and an in-app
+  footer link crediting [Z-shen (Bilibili)](https://space.bilibili.com/101513971)
+  for the inspiration and the prop-firm rule walkthroughs behind the presets.
+
+### Changed
+
+- **Architecture: unidirectional data flow** — a new observable store
+  (`src/state/store.ts`) owns all mutable state (inputs, result, scenarios,
+  preset id); `main.ts` is now a pure view-wiring layer that turns DOM events
+  into store actions and re-renders from state. Layers renamed for clarity:
+  `src/core/` → `src/domain/`, storage moved to `src/platform/`. The module
+  layout is now domain / data / state / i18n / ui / platform.
+- **Toolchain security refresh** — Vite 6 → 8, vite-plugin-pwa 0.21 → 2,
+  Vitest 2 → 5. Clears all five `npm audit` advisories (one critical, one high,
+  three moderate; all dev-server-side, none affected the shipped bundle).
+  `engines.node` floor raised to `>=20.19` accordingly.
+- **Accessibility** — the UI now honours `prefers-reduced-motion`: value flashes,
+  toasts and the loader stop animating, and programmatic scrolling no longer
+  uses smooth behaviour.
+- **Docs** — corrected the gzipped bundle size (~24 kB → ~26 kB, JS + CSS).
 
 ### Fixed
 
@@ -34,7 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   best single day as a share of total profit (Apex 50%, FundedNext On-Demand
   40%, some modes 30–40%), and the model treats its output as unconstrained
   expectancy. Spotted while cross-checking against community teaching material.
-
 - **Desktop release workflow** — install the `aarch64-apple-darwin` and
   `x86_64-apple-darwin` Rust targets so the macOS universal build can actually
   compile; move the Linux leg to `ubuntu-24.04` (22.04 entered deprecation in
@@ -49,17 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   it now keeps the newest, matching what persistence would have written.
 - **Test runner in restricted environments** — run test files sequentially so
   sandboxes that deny worker temp-file access still execute the full suite.
-
-### Changed
-
-- **Toolchain security refresh** — Vite 6 → 8, vite-plugin-pwa 0.21 → 2,
-  Vitest 2 → 5. Clears all five `npm audit` advisories (one critical, one high,
-  three moderate; all dev-server-side, none affected the shipped bundle).
-  `engines.node` floor raised to `>=20.19` accordingly.
-- **Accessibility** — the UI now honours `prefers-reduced-motion`: value flashes,
-  toasts and the loader stop animating, and programmatic scrolling no longer
-  uses smooth behaviour.
-- **Docs** — corrected the gzipped bundle size (~24 kB → ~26 kB, JS + CSS).
 
 ## [2.0.0] — 2026-10-04
 

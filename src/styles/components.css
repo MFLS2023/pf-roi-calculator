@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Form groups
+   Form groups — numbered ledger sections
    ========================================================================== */
 
 .group {
@@ -25,30 +25,24 @@
 .group__head-left {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   min-width: 0;
 }
 
-.dot {
+/* Terminal-style step number, e.g. `01`. */
+.group__step {
   flex: 0 0 auto;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-
-.dot--blue {
-  background: var(--dot-blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
-}
-
-.dot--orange {
-  background: var(--dot-orange);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14);
-}
-
-.dot--green {
-  background: var(--dot-green);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+  min-width: 22px;
+  padding: 1px 4px;
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--accent-bar);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
 .group__title {
@@ -124,12 +118,12 @@
 
 .field__input:focus {
   outline: none;
-  border-color: var(--brand-2);
+  border-color: var(--accent);
   box-shadow: var(--focus-ring);
 }
 
 .field__input[data-invalid='true'] {
-  border-color: var(--negative);
+  border-color: var(--positive);
 }
 
 /* Comfortable touch targets on phones / tablets. */
@@ -163,24 +157,24 @@
 .btn--primary {
   width: 100%;
   height: var(--button-h);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   margin: 16px 0 0;
-  color: #ffffff;
+  color: var(--btn-primary-text);
   font-size: 15px;
   letter-spacing: 0.3px;
-  background: linear-gradient(135deg, var(--brand-1), var(--brand-2), var(--brand-3));
+  background: var(--btn-primary-bg);
   box-shadow: var(--shadow-button);
 }
 
 .btn--primary:hover {
-  filter: brightness(1.04);
+  background: var(--btn-primary-bg-hover);
   box-shadow: var(--shadow-button-hover);
 }
 
 .btn--secondary {
   height: 38px;
   padding: 0 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-group);
   font-size: 13px;
   color: var(--text-label);
   background: var(--surface-chip);
@@ -214,22 +208,22 @@
   width: 28px;
   height: 28px;
   padding: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-field);
   background: transparent;
   color: var(--text-faint);
 }
 
 .btn--icon:hover {
-  background: var(--negative-soft);
-  color: var(--negative);
+  background: var(--positive-soft);
+  color: var(--positive);
 }
 
 .btn__spinner {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  border-top-color: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-top-color: var(--btn-primary-text);
   animation: spin 0.7s linear infinite;
 }
 
@@ -263,7 +257,7 @@
   height: 38px;
   padding: 0 28px 0 30px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-group);
   background: var(--surface-input);
   font-size: 13px;
   font-weight: 500;
@@ -280,7 +274,7 @@
 
 .select:focus {
   outline: none;
-  border-color: var(--brand-2);
+  border-color: var(--accent);
   box-shadow: var(--focus-ring);
 }
 
@@ -300,7 +294,7 @@
 }
 
 /* ==========================================================================
-   Metrics grid
+   Metrics grid — ticker tiles with a left accent bar
    ========================================================================== */
 
 .metrics {
@@ -321,10 +315,11 @@
   flex-direction: column;
   gap: 7px;
   min-width: 0;
-  padding: 11px 9px 12px;
+  padding: 10px 9px 11px 11px;
   background: var(--surface);
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border-left: 3px solid var(--accent-bar);
+  border-radius: var(--radius-field);
   transition: border-color 0.18s ease;
 }
 
@@ -336,6 +331,7 @@
   background: transparent;
   border-style: dashed;
   border-color: var(--border-soft);
+  border-left: 3px solid var(--border-soft);
 }
 
 .metric__head {
@@ -343,6 +339,7 @@
   align-items: center;
   gap: 5px;
   min-width: 0;
+  color: var(--text-faint);
 }
 
 .metric__head svg {
@@ -360,17 +357,18 @@
 }
 
 .metric__value {
-  font-size: 17px;
+  font-family: var(--font-mono);
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.4px;
+  line-height: 1.15;
+  letter-spacing: -0.2px;
   font-variant-numeric: tabular-nums;
   color: var(--text-strong);
   white-space: nowrap;
 }
 
 .metric__value--sm {
-  font-size: 16px;
+  font-size: 15px;
 }
 
 @keyframes value-pop {
@@ -394,11 +392,11 @@
   }
 
   .metric__value {
-    font-size: 15.5px;
+    font-size: 14.5px;
   }
 
   .metric__value--sm {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
 
@@ -408,9 +406,10 @@
 
 .roi {
   margin-top: 16px;
-  padding: 20px 18px 18px;
+  padding: 20px 18px 16px;
   background: var(--surface-sunken);
   border: 1px solid var(--border-soft);
+  border-top: 3px solid var(--accent-bar);
   border-radius: var(--radius-panel);
   text-align: center;
 }
@@ -426,14 +425,16 @@
 }
 
 .roi__value {
-  font-size: 36px;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 38px;
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: -1px;
   font-variant-numeric: tabular-nums;
   transition: color 0.25s ease;
 }
 
+/* P&L semantics: 红 = gain, 绿 = loss (CN market convention). */
 .roi__value.is-positive {
   color: var(--positive);
 }
@@ -483,9 +484,15 @@
   background: var(--surface-chip);
 }
 
+.roi__legend {
+  margin-top: 10px;
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+
 @media (max-width: 380px) {
   .roi__value {
-    font-size: 32px;
+    font-size: 33px;
   }
 }
 
@@ -547,7 +554,7 @@
   height: 38px;
   padding: 0 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-group);
   background: var(--surface-input);
   font-size: 13px;
   color: var(--text-strong);
@@ -555,7 +562,7 @@
 
 .compare__name:focus {
   outline: none;
-  border-color: var(--brand-2);
+  border-color: var(--accent);
   box-shadow: var(--focus-ring);
 }
 
@@ -565,7 +572,7 @@
   color: var(--text-faint);
   background: var(--surface-subtle);
   border: 1px dashed var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-group);
   padding: 16px;
   text-align: center;
 }
@@ -574,7 +581,7 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-group);
 }
 
 .compare__table {
@@ -590,6 +597,7 @@
   text-align: right;
   white-space: nowrap;
   border-bottom: 1px solid var(--border-soft);
+  font-variant-numeric: tabular-nums;
 }
 
 .compare__table th {
@@ -625,12 +633,14 @@
   background: var(--surface-subtle);
 }
 
+/* Best row is marked by the amber rail instead of a colour wash. */
 .compare__row--best td {
-  background: var(--positive-soft);
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .compare__row--best td:first-child {
-  background: var(--positive-soft);
+  background: var(--accent-soft);
 }
 
 .compare__name-cell {
@@ -654,7 +664,7 @@
   padding: 1px 6px;
   border-radius: 999px;
   color: var(--positive);
-  background: rgba(16, 185, 129, 0.16);
+  background: var(--positive-soft);
 }
 
 .badge--confidence {
@@ -664,20 +674,22 @@
 }
 
 .badge--low {
-  color: var(--amber);
-  background: rgba(245, 158, 11, 0.16);
+  color: var(--text-muted);
+  background: var(--surface-chip);
+  font-weight: 600;
 }
 
 .badge--medium {
-  color: var(--brand-1);
-  background: rgba(59, 130, 246, 0.14);
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .badge--high {
-  color: var(--positive);
-  background: rgba(16, 185, 129, 0.16);
+  color: var(--negative);
+  background: var(--negative-soft);
 }
 
+/* P&L values in the comparison table follow the CN convention. */
 .value--positive {
   color: var(--positive);
   font-weight: 700;
@@ -719,21 +731,22 @@
 
 .toast {
   padding: 9px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-field);
+  border-left: 3px solid var(--accent);
   font-size: 12.5px;
   font-weight: 500;
-  color: #ffffff;
-  background: rgba(15, 23, 42, 0.92);
-  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+  color: var(--text-strong);
+  background: var(--surface-sunken);
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-soft);
   animation: toast-in 0.22s ease;
 }
 
 .toast--success {
-  background: rgba(5, 150, 105, 0.95);
+  border-left-color: var(--negative);
 }
 
 .toast--error {
-  background: rgba(220, 38, 38, 0.95);
+  border-left-color: var(--positive);
 }
 
 @keyframes toast-in {

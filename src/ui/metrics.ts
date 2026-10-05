@@ -1,5 +1,5 @@
-import { formatCount, formatMoney, formatPercent, PLACEHOLDER } from '../core/formatter';
-import type { CalculatorResult } from '../core/types';
+import { formatCount, formatMoney, formatPercent, PLACEHOLDER } from '../domain/formatter';
+import type { CalculatorResult } from '../domain/types';
 import { t } from '../i18n';
 import type { Dict } from '../i18n/zh-CN';
 import { h, setText } from './dom';
@@ -10,8 +10,6 @@ interface MetricSpec {
   id: string;
   titleKey: keyof Dict;
   iconName: IconName;
-  /** Accent colour of the tile's icon. */
-  color: string;
   /** Slightly smaller type for longer values such as `$1531`. */
   small?: boolean;
   /** Pure function turning a result into the displayed string. */
@@ -23,21 +21,18 @@ const SPECS: readonly MetricSpec[] = [
     id: 'exam-rate',
     titleKey: 'metricExamRate',
     iconName: 'check',
-    color: '#3b82f6',
     format: (r) => (r.isViable ? formatPercent(r.examPassRate, 2) : PLACEHOLDER),
   },
   {
     id: 'payout-rate',
     titleKey: 'metricPayoutRate',
     iconName: 'check',
-    color: '#10b981',
     format: (r) => (r.isViable ? formatPercent(r.payoutPassRate, 2) : PLACEHOLDER),
   },
   {
     id: 'total-rate',
     titleKey: 'metricTotalRate',
     iconName: 'target',
-    color: '#60a5fa',
     small: true,
     format: (r) => (r.isViable ? formatPercent(r.totalPassRate, 4) : PLACEHOLDER),
   },
@@ -45,7 +40,6 @@ const SPECS: readonly MetricSpec[] = [
     id: 'accounts-to-buy',
     titleKey: 'metricAccountsToBuy',
     iconName: 'briefcase',
-    color: '#7c3aed',
     small: true,
     format: (r) => (r.isViable ? formatCount(r.accountsToBuy, 2) : PLACEHOLDER),
   },
@@ -53,7 +47,6 @@ const SPECS: readonly MetricSpec[] = [
     id: 'funded-accounts',
     titleKey: 'metricFundedAccounts',
     iconName: 'dollar',
-    color: '#f97316',
     small: true,
     format: (r) => (r.isViable ? formatCount(r.fundedAccounts, 2) : PLACEHOLDER),
   },
@@ -61,7 +54,6 @@ const SPECS: readonly MetricSpec[] = [
     id: 'account-cost',
     titleKey: 'metricAccountCost',
     iconName: 'coins',
-    color: '#eab308',
     small: true,
     format: (r) => (r.isViable ? formatMoney(r.accountCost) : PLACEHOLDER),
   },
@@ -69,7 +61,6 @@ const SPECS: readonly MetricSpec[] = [
     id: 'activation-cost',
     titleKey: 'metricActivationCost',
     iconName: 'dollar',
-    color: '#a16207',
     small: true,
     format: (r) => (r.isViable ? formatMoney(r.activationCost) : PLACEHOLDER),
   },
@@ -77,7 +68,6 @@ const SPECS: readonly MetricSpec[] = [
     id: 'total-cost',
     titleKey: 'metricTotalCost',
     iconName: 'bars',
-    color: '#ea580c',
     small: true,
     format: (r) => (r.isViable ? formatMoney(r.totalCost) : PLACEHOLDER),
   },
@@ -104,7 +94,7 @@ export function createMetrics(): MetricsController {
 
     const head = h('div', {
       class: 'metric__head',
-      html: `${icon(spec.iconName, { size: 12, color: spec.color, strokeWidth: 2.4 })}`,
+      html: `${icon(spec.iconName, { size: 12, strokeWidth: 2.4 })}`,
     });
     head.append(title);
 

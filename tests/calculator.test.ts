@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { calculate, sanitizeInputs, singleStagePassRate, stagePassRate } from '../src/core/calculator';
-import { DEFAULT_INPUTS, MIN_DAYS } from '../src/core/constants';
+import { calculate, sanitizeInputs, singleStagePassRate, stagePassRate } from '../src/domain/calculator';
+import { DEFAULT_INPUTS, MIN_DAYS } from '../src/domain/constants';
 import {
   PLACEHOLDER,
   formatCount,
@@ -10,7 +10,7 @@ import {
   formatSignedMoney,
   formatSignedPercent,
   toneOf,
-} from '../src/core/formatter';
+} from '../src/domain/formatter';
 
 /**
  * The reference numbers in this file are copied verbatim from the design spec.

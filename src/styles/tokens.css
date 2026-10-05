@@ -1,66 +1,74 @@
 /**
- * Design tokens.
+ * Design tokens — "terminal ledger" design language.
+ *
+ * Dark-first trading-terminal aesthetic: deep blue-black surfaces, amber
+ * accent, sharp radii and tabular numerals. A warm-paper light theme is
+ * provided as the secondary mode.
+ *
+ * P&L semantics follow the Chinese market convention (红涨绿跌): *gains are
+ * red*, losses are green. The `--positive` token therefore means "gain" and
+ * renders red — see the legend line in the ROI card.
  *
  * Every colour, radius and shadow used anywhere in the app is declared exactly
- * once, here. Component styles only reference `var(--…)`, which is what makes the
- * dark-mode override at the bottom of this file a ~30-line change instead of a
- * full stylesheet fork.
+ * once, here. Component styles only reference `var(--…)`, which is what makes
+ * the light-mode override a ~40-line change instead of a stylesheet fork.
  */
 
 :root {
   /* ---- surfaces ---- */
-  --bg-from: #eef2f6;
-  --bg-to: #e0e7ff;
-  --surface: #ffffff;
-  --surface-sunken: #f8fafc;
-  --surface-subtle: #fbfcfe;
-  --surface-input: #ffffff;
-  --surface-chip: #f1f5f9;
-  --surface-chip-hover: #e2e8f0;
+  --bg-from: #0c0f14;
+  --bg-to: #11151c;
+  --grid-line: rgba(148, 163, 184, 0.05);
+  --surface: #151a22;
+  --surface-sunken: #1a2029;
+  --surface-subtle: #171d26;
+  --surface-input: #10151d;
+  --surface-chip: #212935;
+  --surface-chip-hover: #2b3543;
 
   /* ---- borders ---- */
-  --border: #e2e8f0;
-  --border-soft: #eef2f7;
-  --border-group: #f1f5f9;
+  --border: #2a3341;
+  --border-soft: #212a36;
+  --border-group: #212a36;
 
   /* ---- text ---- */
-  --text-strong: #0f172a;
-  --text-title: #1e293b;
-  --text-label: #475569;
-  --text-muted: #64748b;
-  --text-faint: #94a3b8;
+  --text-strong: #eceff4;
+  --text-title: #dfe4ec;
+  --text-label: #b6bfca;
+  --text-muted: #8d97a5;
+  --text-faint: #5f6975;
 
-  /* ---- brand ---- */
-  --brand-1: #3b82f6;
-  --brand-2: #6366f1;
-  --brand-3: #8b5cf6;
-  --brand-logo-1: #4f46e5;
-  --brand-logo-2: #7c3aed;
+  /* ---- brand accent: terminal amber ---- */
+  --accent: #f0a63c;
+  --accent-strong: #ffbe5c;
+  --accent-ink: #1a1206;
+  --accent-soft: rgba(240, 166, 60, 0.14);
+  --accent-bar: rgba(240, 166, 60, 0.5);
+  --btn-primary-bg: linear-gradient(135deg, #f5b04e, #e8930c);
+  --btn-primary-bg-hover: linear-gradient(135deg, #ffbe5c, #f0a02a);
+  --btn-primary-text: #1a1206;
 
-  /* ---- semantic ---- */
-  --positive: #10b981;
-  --positive-soft: rgba(16, 185, 129, 0.12);
-  --negative: #ef4444;
-  --negative-soft: rgba(239, 68, 68, 0.12);
-  --amber: #f59e0b;
-  --dot-blue: #3b82f6;
-  --dot-orange: #f59e0b;
-  --dot-green: #10b981;
+  /* ---- P&L (CN convention: gain = red, loss = green) ---- */
+  --positive: #ff6b6b;
+  --positive-soft: rgba(229, 72, 77, 0.14);
+  --negative: #3ddc97;
+  --negative-soft: rgba(61, 220, 151, 0.13);
+  --amber: #f0a63c;
 
   /* ---- radii ---- */
-  --radius-card: 24px;
-  --radius-panel: 16px;
-  --radius-group: 14px;
-  --radius-field: 8px;
-  --radius-chip: 6px;
-  --radius-logo: 10px;
+  --radius-card: 16px;
+  --radius-panel: 12px;
+  --radius-group: 10px;
+  --radius-field: 6px;
+  --radius-chip: 4px;
+  --radius-logo: 8px;
 
   /* ---- elevation ---- */
-  --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.07), 0 0 1px 1px rgba(0, 0, 0, 0.04);
-  --shadow-logo: 0 6px 14px -6px rgba(79, 70, 229, 0.65);
-  --shadow-button: 0 10px 22px -12px rgba(99, 102, 241, 0.9);
-  --shadow-button-hover: 0 14px 26px -12px rgba(99, 102, 241, 1);
-  --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  --shadow-card: 0 24px 48px -24px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(148, 163, 184, 0.06);
+  --shadow-logo: 0 6px 14px -6px rgba(240, 166, 60, 0.5);
+  --shadow-button: 0 10px 22px -12px rgba(240, 166, 60, 0.45);
+  --shadow-button-hover: 0 14px 26px -12px rgba(240, 166, 60, 0.6);
+  --focus-ring: 0 0 0 3px rgba(240, 166, 60, 0.22);
 
   /* ---- metrics ---- */
   --header-gap: 22px;
@@ -70,38 +78,59 @@
   /* ---- typography ---- */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 /**
- * Optional dark theme. Purely additive: users whose OS prefers dark get a
- * readable dark surface, everyone else gets the reference design untouched.
+ * Secondary warm-paper light theme. Same layout, different medium: users whose
+ * OS prefers light get an ink-on-paper ledger instead of the terminal.
  */
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --bg-from: #0f172a;
-    --bg-to: #1e1b4b;
-    --surface: #161c2c;
-    --surface-sunken: #1b2233;
-    --surface-subtle: #1a2132;
-    --surface-input: #1b2233;
-    --surface-chip: #262f45;
-    --surface-chip-hover: #313b55;
+    --bg-from: #f3f1ea;
+    --bg-to: #eae7de;
+    --grid-line: rgba(27, 30, 35, 0.045);
+    --surface: #ffffff;
+    --surface-sunken: #f6f4ee;
+    --surface-subtle: #faf8f3;
+    --surface-input: #ffffff;
+    --surface-chip: #efede6;
+    --surface-chip-hover: #e5e2d8;
 
-    --border: #2c3654;
-    --border-soft: #232c44;
-    --border-group: #232c44;
+    --border: #ddd9cd;
+    --border-soft: #e9e6dc;
+    --border-group: #e9e6dc;
 
-    --text-strong: #f1f5f9;
-    --text-title: #e2e8f0;
-    --text-label: #cbd5e1;
-    --text-muted: #94a3b8;
-    --text-faint: #64748b;
+    --text-strong: #1d2025;
+    --text-title: #191c21;
+    --text-label: #4a4f57;
+    --text-muted: #6b717c;
+    --text-faint: #989da6;
 
-    --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.55), 0 0 1px 1px rgba(255, 255, 255, 0.04);
+    --accent: #a16207;
+    --accent-strong: #854d0e;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(161, 98, 7, 0.1);
+    --accent-bar: rgba(161, 98, 7, 0.4);
+    --btn-primary-bg: linear-gradient(135deg, #b4790b, #94590a);
+    --btn-primary-bg-hover: linear-gradient(135deg, #a16207, #854d0e);
+    --btn-primary-text: #ffffff;
 
-    color-scheme: dark;
+    --positive: #c62f35;
+    --positive-soft: rgba(198, 47, 53, 0.09);
+    --negative: #1e7d43;
+    --negative-soft: rgba(30, 125, 67, 0.09);
+    --amber: #a16207;
+
+    --shadow-card: 0 20px 40px -18px rgba(41, 36, 24, 0.18), 0 0 0 1px rgba(41, 36, 24, 0.04);
+    --shadow-logo: 0 6px 14px -6px rgba(161, 98, 7, 0.45);
+    --shadow-button: 0 10px 22px -12px rgba(161, 98, 7, 0.5);
+    --shadow-button-hover: 0 14px 26px -12px rgba(161, 98, 7, 0.65);
+    --focus-ring: 0 0 0 3px rgba(161, 98, 7, 0.18);
+
+    color-scheme: light;
   }
 }

@@ -1,5 +1,5 @@
-import { DEFAULT_INPUTS } from '../core/constants';
-import type { CalculatorInputs } from '../core/types';
+import { DEFAULT_INPUTS } from '../domain/constants';
+import type { CalculatorInputs } from '../domain/types';
 import type { LocalizedText } from '../i18n/types';
 
 /**

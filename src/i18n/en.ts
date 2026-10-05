@@ -72,6 +72,7 @@ export const en: Dict = {
   roiInvalid: 'Check your inputs — drawdown + target must be greater than 0',
   roiVerdictPositive: 'Positive expectancy — worth funding',
   roiVerdictNegative: 'Negative expectancy — a guaranteed long-run loss',
+  roiLegend: 'CN market convention: red = gain, green = loss',
 
   /* ---------- comparison ---------- */
   compareTitle: 'Scenario comparison',
@@ -96,6 +97,7 @@ export const en: Dict = {
   footerModel: 'Model: P = (D / (D + T))^N · zero-drift random walk (gambler\u2019s ruin)',
   footerDisclaimer:
     'This tool performs a mathematical expectancy estimate only. Nothing here is investment advice. Trading carries risk; past probabilities do not predict future results.',
+  footerCredit: 'Inspired by Z-shen\u2019s prop-firm walkthroughs · Bilibili',
 
   /* ---------- PWA ---------- */
   installApp: 'Install app',

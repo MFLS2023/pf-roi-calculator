@@ -76,6 +76,7 @@ export const zhCN = {
   roiInvalid: '请检查输入参数：回撤 + 利润必须大于 0',
   roiVerdictPositive: '期望为正，值得投入',
   roiVerdictNegative: '期望为负，长期必亏',
+  roiLegend: '红涨绿跌 · 遵循国内行情配色习惯',
 
   /* ---------- comparison ---------- */
   compareTitle: '多方案对比',
@@ -100,6 +101,7 @@ export const zhCN = {
   footerModel: '模型：P = (D / (D + T))^N · 零漂移随机游走（赌徒破产）',
   footerDisclaimer:
     '本工具仅做数学期望测算，不构成投资建议。交易有风险，历史概率不代表未来结果。',
+  footerCredit: '灵感与规则讲解致谢：Z神 · B站主页',
 
   /* ---------- PWA ---------- */
   installApp: '安装到设备',
