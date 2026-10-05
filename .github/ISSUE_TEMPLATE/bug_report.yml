@@ -1,0 +1,71 @@
+name: Bug report
+description: Something computes wrong, renders wrong, or crashes.
+title: '[Bug] '
+labels: ['bug', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. If the problem is a **wrong number**, please include
+        the exact inputs and the value you expected — that is almost always enough
+        to find the cause.
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did it happen?
+      options:
+        - Web / PWA (browser)
+        - Installed PWA (added to home screen / desktop)
+        - Desktop app (Tauri build)
+        - Standalone single-file HTML (standalone/)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Shown in the release tag, or the commit SHA if you built from source.
+      placeholder: v2.0.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Include what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Inputs and results
+      description: Paste the nine input values and the metrics shown. A screenshot is even better.
+      placeholder: |
+        单号成本 = 49, 激活费用 = 149, 考试回撤 = 1000, 考试利润 = 1500, 考试天数 = 2, ...
+        Expected ROI: -20.92%
+        Actual ROI: -19.50%
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, browser and version, and whether you were offline.
+      placeholder: Windows 11 · Chrome 141 · offline
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for the same problem.
+          required: true
+        - label: This is not a request to change the mathematical model (use a feature request for that).
+          required: false

@@ -1,0 +1,61 @@
+name: Deploy PWA to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# NOTE FOR CHINA-BASED USERS
+# --------------------------
+# `*.github.io` is not reliably reachable from mainland China (DNS poisoning and
+# SNI-based resets, and the situation varies by ISP and province). If your
+# audience is in China, prefer one of these instead — the app is a static bundle,
+# so anything that serves files will do:
+#   • Tencent Cloud EdgeOne Pages   (fast inside China, free tier)
+#   • Cloudflare Pages              (better but still not guaranteed)
+#   • Alibaba Cloud OSS + CDN
+#   • Gitee Pages / your own nginx
+# The desktop build (Tauri) sidesteps the problem entirely by being offline.
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (relative asset paths, so any sub-path works)
+        run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

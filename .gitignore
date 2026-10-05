@@ -1,0 +1,44 @@
+# ---- dependencies ----
+node_modules/
+.pnpm-store/
+
+# ---- build output ----
+dist/
+dist-ssr/
+dev-dist/
+*.local
+
+# ---- Tauri / Rust ----
+src-tauri/target/
+src-tauri/gen/
+
+# ---- test / coverage ----
+coverage/
+
+# ---- tooling caches ----
+.vite/
+.cache/
+.eslintcache
+*.tsbuildinfo
+*.timestamp-*.mjs
+
+# ---- scratch / probe scripts (must never be committed) ----
+scratch/
+tmp/
+*.tmp
+.tmp_*
+
+# ---- editors & OS ----
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- logs ----
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*

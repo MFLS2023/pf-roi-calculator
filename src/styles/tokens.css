@@ -1,0 +1,107 @@
+/**
+ * Design tokens.
+ *
+ * Every colour, radius and shadow used anywhere in the app is declared exactly
+ * once, here. Component styles only reference `var(--…)`, which is what makes the
+ * dark-mode override at the bottom of this file a ~30-line change instead of a
+ * full stylesheet fork.
+ */
+
+:root {
+  /* ---- surfaces ---- */
+  --bg-from: #eef2f6;
+  --bg-to: #e0e7ff;
+  --surface: #ffffff;
+  --surface-sunken: #f8fafc;
+  --surface-subtle: #fbfcfe;
+  --surface-input: #ffffff;
+  --surface-chip: #f1f5f9;
+  --surface-chip-hover: #e2e8f0;
+
+  /* ---- borders ---- */
+  --border: #e2e8f0;
+  --border-soft: #eef2f7;
+  --border-group: #f1f5f9;
+
+  /* ---- text ---- */
+  --text-strong: #0f172a;
+  --text-title: #1e293b;
+  --text-label: #475569;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+
+  /* ---- brand ---- */
+  --brand-1: #3b82f6;
+  --brand-2: #6366f1;
+  --brand-3: #8b5cf6;
+  --brand-logo-1: #4f46e5;
+  --brand-logo-2: #7c3aed;
+
+  /* ---- semantic ---- */
+  --positive: #10b981;
+  --positive-soft: rgba(16, 185, 129, 0.12);
+  --negative: #ef4444;
+  --negative-soft: rgba(239, 68, 68, 0.12);
+  --amber: #f59e0b;
+  --dot-blue: #3b82f6;
+  --dot-orange: #f59e0b;
+  --dot-green: #10b981;
+
+  /* ---- radii ---- */
+  --radius-card: 24px;
+  --radius-panel: 16px;
+  --radius-group: 14px;
+  --radius-field: 8px;
+  --radius-chip: 6px;
+  --radius-logo: 10px;
+
+  /* ---- elevation ---- */
+  --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.07), 0 0 1px 1px rgba(0, 0, 0, 0.04);
+  --shadow-logo: 0 6px 14px -6px rgba(79, 70, 229, 0.65);
+  --shadow-button: 0 10px 22px -12px rgba(99, 102, 241, 0.9);
+  --shadow-button-hover: 0 14px 26px -12px rgba(99, 102, 241, 1);
+  --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.15);
+
+  /* ---- metrics ---- */
+  --header-gap: 22px;
+  --control-h: 40px;
+  --button-h: 46px;
+
+  /* ---- typography ---- */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  color-scheme: light;
+}
+
+/**
+ * Optional dark theme. Purely additive: users whose OS prefers dark get a
+ * readable dark surface, everyone else gets the reference design untouched.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-from: #0f172a;
+    --bg-to: #1e1b4b;
+    --surface: #161c2c;
+    --surface-sunken: #1b2233;
+    --surface-subtle: #1a2132;
+    --surface-input: #1b2233;
+    --surface-chip: #262f45;
+    --surface-chip-hover: #313b55;
+
+    --border: #2c3654;
+    --border-soft: #232c44;
+    --border-group: #232c44;
+
+    --text-strong: #f1f5f9;
+    --text-title: #e2e8f0;
+    --text-label: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-faint: #64748b;
+
+    --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.55), 0 0 1px 1px rgba(255, 255, 255, 0.04);
+
+    color-scheme: dark;
+  }
+}

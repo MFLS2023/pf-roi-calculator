@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "PF ROI Calculator",
+  "version": "2.0.0",
+  "identifier": "com.pfroi.calculator",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "PF ROI Calculator",
+        "width": 1120,
+        "height": 840,
+        "minWidth": 380,
+        "minHeight": 640,
+        "resizable": true,
+        "center": true,
+        "decorations": true,
+        "theme": null
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Finance",
+    "shortDescription": "Prop Firm ROI calculator",
+    "longDescription": "Estimate prop-firm exam and payout pass rates, the number of evaluation accounts you need and your expected return on investment, using the gambler's ruin model. Works fully offline.",
+    "copyright": "MIT licensed",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    },
+    "windows": {
+      "wix": {
+        "language": ["en-US", "zh-CN"]
+      }
+    }
+  }
+}

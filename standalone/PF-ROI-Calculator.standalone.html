@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PF 投产比计算器 | Prop Firm ROI Calculator</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --brand-a: #3b82f6;
+    --brand-b: #6366f1;
+    --brand-c: #8b5cf6;
+    --text-strong: #0f172a;
+    --text-title: #1e293b;
+    --text-label: #475569;
+    --text-muted: #64748b;
+    --line: #e2e8f0;
+    --red: #ef4444;
+    --green: #10b981;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #eef2f6 0%, #e0e7ff 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 0 56px;
+    color: var(--text-strong);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ============ 主容器 ============ */
+  .app {
+    width: 92vw;
+    max-width: 460px;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 28px 24px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.07),
+                0 0 1px 1px rgba(0, 0, 0, 0.04);
+  }
+
+  /* ============ 顶部栏 ============ */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .header-left { display: flex; align-items: center; gap: 11px; }
+  .logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    box-shadow: 0 6px 14px -6px rgba(79, 70, 229, 0.65);
+  }
+  .logo svg { display: block; }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-title);
+    letter-spacing: -0.2px;
+  }
+  .reset-btn {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: #f1f5f9;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease, transform .12s ease;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .reset-btn:hover { background: #e2e8f0; color: #475569; }
+  .reset-btn:active { transform: scale(0.96); }
+
+  /* ============ 表单分组 ============ */
+  .group {
+    background: #fbfcfe;
+    border: 1px solid #f1f5f9;
+    border-radius: 14px;
+    padding: 14px 14px 16px;
+    margin-bottom: 12px;
+  }
+  .group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .group-head-left { display: flex; align-items: center; gap: 7px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+  .dot.blue   { background: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.14); }
+  .dot.orange { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.14); }
+  .dot.green  { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.14); }
+  .group-title { font-size: 13px; font-weight: 600; color: var(--text-title); }
+  .group-tag { font-size: 11px; color: #94a3b8; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 12px;
+  }
+  .field { display: flex; flex-direction: column; }
+  .field label {
+    font-size: 12px;
+    color: var(--text-label);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .field input {
+    height: 40px;
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-strong);
+    padding: 0 12px;
+    background: #ffffff;
+    font-family: inherit;
+    transition: border-color .18s ease, box-shadow .18s ease;
+    outline: none;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .field input::-webkit-outer-spin-button,
+  .field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .field input:hover { border-color: #cbd5e1; }
+  .field input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  /* ============ 计算按钮 ============ */
+  .calc-btn {
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    margin: 16px 0 20px;
+    box-shadow: 0 10px 22px -12px rgba(99, 102, 241, 0.9);
+    transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .calc-btn:hover { filter: brightness(1.04); box-shadow: 0 14px 26px -12px rgba(99,102,241,1); }
+  .calc-btn:active { transform: scale(0.99); }
+
+  /* ============ 指标看板 ============ */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
+    margin-bottom: 16px;
+  }
+  .metric {
+    background: #ffffff;
+    border: 1px solid #eef2f7;
+    border-radius: 12px;
+    padding: 11px 9px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+    transition: border-color .18s ease, transform .18s ease;
+  }
+  .metric:hover { border-color: #e2e8f0; }
+  .metric-head { display: flex; align-items: center; gap: 5px; min-width: 0; }
+  .metric-head svg { flex: 0 0 auto; display: block; }
+  .metric-title {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .metric-value {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-strong);
+    letter-spacing: -0.4px;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .metric-value.sm { font-size: 16px; }
+  .metric.placeholder {
+    background: transparent;
+    border: 1px dashed #e8eef5;
+    box-shadow: none;
+  }
+  @keyframes pop { 0% { opacity: .35; transform: translateY(2px); } 100% { opacity: 1; transform: none; } }
+  .metric-value.flash { animation: pop .28s ease; }
+
+  /* ============ ROI 大卡片 ============ */
+  .roi-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 20px 18px 18px;
+    text-align: center;
+    border: 1px solid #f1f5f9;
+  }
+  .roi-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .roi-value {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+    transition: color .25s ease;
+  }
+  .roi-value.neg { color: var(--red); }
+  .roi-value.pos { color: var(--green); }
+  .roi-value.neutral { color: var(--text-title); }
+  .roi-foot {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .roi-note {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 4px;
+  }
+
+  /* ============ 页脚说明 ============ */
+  .footnote {
+    margin-top: 16px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #94a3b8;
+    text-align: center;
+  }
+  .footnote code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 10.5px;
+  }
+
+  @media (max-width: 380px) {
+    .roi-value { font-size: 32px; }
+    .metric-value { font-size: 15.5px; }
+    .metric-title { font-size: 10.5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= 顶部栏 ================= -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 20h18"></path>
+          <rect x="5" y="12" width="3.2" height="6" rx="1" fill="#ffffff" stroke="none"></rect>
+          <rect x="10.4" y="8" width="3.2" height="10" rx="1" fill="#ffffff" stroke="none" opacity="0.85"></rect>
+          <rect x="15.8" y="4" width="3.2" height="14" rx="1" fill="#ffffff" stroke="none" opacity="0.7"></rect>
+        </svg>
+      </div>
+      <h1>ROI 计算器</h1>
+    </div>
+    <button class="reset-btn" id="resetBtn" type="button">重置变量</button>
+  </div>
+
+  <!-- ================= 分组 1：基础成本 ================= -->
+  <div class="group">
+    <div class="group-head">
+      <div class="group-head-left">
+        <span class="dot blue"></span>
+        <span class="group-title">基础成本</span>
+      </div>
+      <span class="group-tag">一次性投入</span>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="costPerAccount">单号成本 (USD)</label>
+        <input type="number" id="costPerAccount" min="0" step="1" value="49" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="activationFee">激活费用 (USD)</label>
+        <input type="number" id="activationFee" min="0" step="1" value="149" inputmode="decimal">
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 分组 2：考试阶段 ================= -->
+  <div class="group">
+    <div class="group-head">
+      <div class="group-head-left">
+        <span class="dot orange"></span>
+        <span class="group-title">考试阶段</span>
+      </div>
+      <span class="group-tag">概率计算</span>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="examDrawdown">考试回撤 (USD)</label>
+        <input type="number" id="examDrawdown" min="0" step="1" value="1000" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="examTarget">考试利润 (USD)</label>
+        <input type="number" id="examTarget" min="0" step="1" value="1500" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="examDays">考试天数</label>
+        <input type="number" id="examDays" min="1" step="1" value="2" inputmode="numeric">
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 分组 3：出金阶段 ================= -->
+  <div class="group">
+    <div class="group-head">
+      <div class="group-head-left">
+        <span class="dot green"></span>
+        <span class="group-title">出金阶段</span>
+      </div>
+      <span class="group-tag">收益结算</span>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="payoutDrawdown">出金回撤 (USD)</label>
+        <input type="number" id="payoutDrawdown" min="0" step="1" value="1000" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="payoutTarget">出金利润 (USD)</label>
+        <input type="number" id="payoutTarget" min="0" step="1" value="4000" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="payoutDays">出金天数</label>
+        <input type="number" id="payoutDays" min="1" step="1" value="1" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="actualPayout">实际出金 (USD)</label>
+        <input type="number" id="actualPayout" min="0" step="1" value="1800" inputmode="decimal">
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 计算按钮 ================= -->
+  <button class="calc-btn" id="calcBtn" type="button">⚡ 计算 ROI</button>
+
+  <!-- ================= 指标看板 ================= -->
+  <div class="metrics">
+    <!-- 第一行：概率类 -->
+    <div class="metric">
+      <div class="metric-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5"></path>
+        </svg>
+        <span class="metric-title">考试通过率</span>
+      </div>
+      <div class="metric-value" id="mExamRate">--</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5"></path>
+        </svg>
+        <span class="metric-title">出金通过率</span>
+      </div>
+      <div class="metric-value" id="mPayoutRate">--</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8"></circle>
+          <path d="M12 8v8M8 12h8"></path>
+        </svg>
+        <span class="metric-title">总通过率</span>
+      </div>
+      <div class="metric-value sm" id="mTotalRate">--</div>
+    </div>
+
+    <!-- 第二行：账号类 -->
+    <div class="metric">
+      <div class="metric-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="7" width="18" height="13" rx="2.5"></rect>
+          <path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7"></path>
+        </svg>
+        <span class="metric-title">期望购买账号</span>
+      </div>
+      <div class="metric-value sm" id="mBuy">--</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v18"></path>
+          <path d="M17 7.5C17 5.6 14.8 4.5 12 4.5S7 5.6 7 7.5s2.2 2.6 5 3 5 1.1 5 3-2.2 3-5 3-5-1.1-5-3"></path>
+        </svg>
+        <span class="metric-title">预计获资账号</span>
+      </div>
+      <div class="metric-value sm" id="mFunded">--</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8.5"></circle>
+          <path d="M12 7v10M14.6 9.4c-.5-.9-1.5-1.4-2.6-1.4-1.4 0-2.5.8-2.5 1.9 0 2.6 5.6 1.2 5.6 3.8 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.2-.5-2.7-1.4"></path>
+        </svg>
+        <span class="metric-title">买号成本</span>
+      </div>
+      <div class="metric-value sm" id="mAccountCost">--</div>
+    </div>
+
+    <!-- 第三行：成本类 -->
+    <div class="metric">
+      <div class="metric-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a16207" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v18"></path>
+          <path d="M17 7.5C17 5.6 14.8 4.5 12 4.5S7 5.6 7 7.5s2.2 2.6 5 3 5 1.1 5 3-2.2 3-5 3-5-1.1-5-3"></path>
+        </svg>
+        <span class="metric-title">激活费用</span>
+      </div>
+      <div class="metric-value sm" id="mActivationCost">--</div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19V9M10 19V5M16 19v-7M22 19H2"></path>
+        </svg>
+        <span class="metric-title">总投入成本</span>
+      </div>
+      <div class="metric-value sm" id="mTotalCost">--</div>
+    </div>
+
+    <div class="metric placeholder" aria-hidden="true"></div>
+  </div>
+
+  <!-- ================= ROI 大卡片 ================= -->
+  <div class="roi-card">
+    <div class="roi-title">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 17l5-5 4 3 8-8"></path>
+        <path d="M15 7h5v5"></path>
+      </svg>
+      投产回报率
+    </div>
+    <div class="roi-value neutral" id="roiValue">--</div>
+    <div class="roi-foot" id="roiFoot">实际出金 $1800</div>
+    <div class="roi-note" id="roiNote"></div>
+  </div>
+
+  <div class="footnote">
+    模型：<code>P = (D / (D + T))^N</code> · 零漂移随机游走（赌徒破产）
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ========== 1. 默认初始值配置表 ========== */
+  const DEFAULT_VALUES = {
+    costPerAccount: 49,
+    activationFee: 149,
+    examDrawdown: 1000,
+    examTarget: 1500,
+    examDays: 2,
+    payoutDrawdown: 1000,
+    payoutTarget: 4000,
+    payoutDays: 1,
+    actualPayout: 1800
+  };
+
+  const FIELD_IDS = Object.keys(DEFAULT_VALUES);
+
+  /* ========== 2. 通用格式化工具 ========== */
+  const isEmpty = (v) => !isFinite(v) || isNaN(v);
+
+  // 百分比：fixed 位小数
+  function fmtPercent(v, digits) {
+    if (isEmpty(v)) return "--";
+    return (v * 100).toFixed(digits) + "%";
+  }
+
+  // 货币：四舍五入取整，带 $ 前缀
+  function fmtMoney(v) {
+    if (isEmpty(v)) return "--";
+    return "$" + Math.round(v);
+  }
+
+  // 数量：保留 2 位小数
+  function fmtNumber(v, digits) {
+    if (isEmpty(v)) return "--";
+    return v.toFixed(digits === undefined ? 2 : digits);
+  }
+
+  /* ========== 3. 读取输入（含容错防御） ========== */
+  function readInputs() {
+    const get = (id) => {
+      const el = document.getElementById(id);
+      const raw = parseFloat(el.value);
+      return isNaN(raw) ? 0 : raw;
+    };
+    return {
+      costPerAccount: Math.max(0, get("costPerAccount")),
+      activationFee: Math.max(0, get("activationFee")),
+      examDrawdown: Math.max(0, get("examDrawdown")),
+      examTarget: Math.max(0, get("examTarget")),
+      examDays: Math.max(1, get("examDays")),
+      payoutDrawdown: Math.max(0, get("payoutDrawdown")),
+      payoutTarget: Math.max(0, get("payoutTarget")),
+      payoutDays: Math.max(1, get("payoutDays")),
+      actualPayout: Math.max(0, get("actualPayout"))
+    };
+  }
+
+  /* ========== 4. 核心计算函数 ========== */
+  function calculateROI() {
+    const v = readInputs();
+
+    // --- 4.1 阶段通过率：P = (D / (D + T)) ^ N ---
+    const examDenom = v.examDrawdown + v.examTarget;
+    const payoutDenom = v.payoutDrawdown + v.payoutTarget;
+
+    const pExam = examDenom > 0 ? Math.pow(v.examDrawdown / examDenom, v.examDays) : 0;
+    const pPayout = payoutDenom > 0 ? Math.pow(v.payoutDrawdown / payoutDenom, v.payoutDays) : 0;
+    const pTotal = pExam * pPayout;
+
+    // --- 4.2 账号量期望 ---
+    const nBuy = pTotal > 0 ? 1 / pTotal : 0;
+    const nFunded = pPayout > 0 ? 1 / pPayout : 0;
+
+    // --- 4.3 成本测算 ---
+    const totalAccountCost = nBuy * v.costPerAccount;
+    const totalActivationCost = nFunded * v.activationFee;
+    const totalCost = totalAccountCost + totalActivationCost;
+
+    // --- 4.4 投产回报率 ---
+    const roi = totalCost > 0 ? ((v.actualPayout - totalCost) / totalCost) * 100 : 0;
+
+    renderResults({
+      pExam, pPayout, pTotal,
+      nBuy, nFunded,
+      totalAccountCost, totalActivationCost, totalCost,
+      roi, pActual: v.actualPayout,
+      valid: pTotal > 0 && totalCost > 0
+    });
+  }
+
+  /* ========== 5. 渲染 DOM ========== */
+  const el = {};
+  [
+    "mExamRate", "mPayoutRate", "mTotalRate",
+    "mBuy", "mFunded", "mAccountCost",
+    "mActivationCost", "mTotalCost",
+    "roiValue", "roiFoot", "roiNote"
+  ].forEach((id) => { el[id] = document.getElementById(id); });
+
+  function setValue(node, text) {
+    if (node.textContent === text) return;
+    node.textContent = text;
+    node.classList.remove("flash");
+    void node.offsetWidth; // 触发重排以重放动画
+    node.classList.add("flash");
+  }
+
+  function renderResults(r) {
+    // 概率
+    setValue(el.mExamRate, r.valid ? fmtPercent(r.pExam, 2) : "--");
+    setValue(el.mPayoutRate, r.valid ? fmtPercent(r.pPayout, 2) : "--");
+    setValue(el.mTotalRate, r.valid ? fmtPercent(r.pTotal, 4) : "--");
+
+    // 账号
+    setValue(el.mBuy, r.valid ? fmtNumber(r.nBuy, 2) : "--");
+    setValue(el.mFunded, r.valid ? fmtNumber(r.nFunded, 2) : "--");
+    setValue(el.mAccountCost, r.valid ? fmtMoney(r.totalAccountCost) : "--");
+
+    // 成本
+    setValue(el.mActivationCost, r.valid ? fmtMoney(r.totalActivationCost) : "--");
+    setValue(el.mTotalCost, r.valid ? fmtMoney(r.totalCost) : "--");
+
+    // ROI 大数值
+    const roiNode = el.roiValue;
+    roiNode.classList.remove("neg", "pos", "neutral");
+    if (!r.valid) {
+      roiNode.textContent = "--";
+      roiNode.classList.add("neutral");
+    } else {
+      const roi = r.roi;
+      const sign = roi > 0 ? "+" : "";
+      roiNode.textContent = sign + roi.toFixed(2) + "%";
+      roiNode.classList.add(roi < 0 ? "neg" : (roi > 0 ? "pos" : "neutral"));
+    }
+
+    el.roiFoot.textContent = "实际出金 " + fmtMoney(r.pActual);
+
+    if (r.valid) {
+      const diff = r.pActual - r.totalCost;
+      el.roiNote.textContent = (diff >= 0 ? "净盈利 " : "净亏损 ") + fmtMoney(Math.abs(diff));
+    } else {
+      el.roiNote.textContent = "请检查输入参数（回撤 + 利润 需大于 0）";
+    }
+  }
+
+  /* ========== 6. 事件绑定 ========== */
+  // 6.1 输入框实时监听
+  FIELD_IDS.forEach((id) => {
+    const node = document.getElementById(id);
+    if (!node) return;
+    node.addEventListener("input", calculateROI);
+    node.addEventListener("change", calculateROI);
+  });
+
+  // 6.2 计算按钮
+  document.getElementById("calcBtn").addEventListener("click", calculateROI);
+
+  // 6.3 重置按钮
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    FIELD_IDS.forEach((id) => {
+      const node = document.getElementById(id);
+      if (node) node.value = DEFAULT_VALUES[id];
+    });
+    calculateROI();
+  });
+
+  // 6.4 回车键触发计算
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") calculateROI();
+  });
+
+  /* ========== 7. 初始化：页面加载即计算一次 ========== */
+  calculateROI();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Normalise line endings on checkout so Windows contributors do not
+# accidentally convert the whole repo to CRLF.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+
+# Keep lock files out of diffs but always present in the tree.
+package-lock.json -diff linguist-generated

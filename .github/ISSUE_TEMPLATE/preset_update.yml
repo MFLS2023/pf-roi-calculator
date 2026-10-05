@@ -1,0 +1,95 @@
+name: Update or add a firm preset
+description: Correct the numbers for an existing prop firm, or add a new one.
+title: '[Preset] '
+labels: ['preset', 'good first issue']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Presets live in a single file — `src/data/presets.ts` — and adding one is a
+        one-object change. This template collects everything needed to keep the
+        catalogue honest.
+
+        **Every number must be traceable to a source.** We would rather ship a
+        preset marked `low` confidence with a clear caveat than a confident-looking
+        wrong number.
+
+  - type: input
+    id: firm
+    attributes:
+      label: Firm
+      placeholder: Apex Trader Funding
+    validations:
+      required: true
+
+  - type: input
+    id: account-size
+    attributes:
+      label: Account size
+      placeholder: '50000'
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Source URL
+      description: The official page (or the page you read the numbers from) that you verified against.
+      placeholder: https://...
+    validations:
+      required: true
+
+  - type: input
+    id: verified-at
+    attributes:
+      label: Verified in (YYYY-MM)
+      placeholder: '2026-10'
+    validations:
+      required: true
+
+  - type: textarea
+    id: values
+    attributes:
+      label: The nine model inputs
+      description: Fill in every field, even the ones that are zero.
+      value: |
+        costPerAccount:   # 单号成本
+        activationFee:    # 激活费用
+        examDrawdown:     # 考试回撤
+        examTarget:       # 考试利润
+        examDays:         # 考试天数
+        payoutDrawdown:   # 出金回撤
+        payoutTarget:     # 出金利润
+        payoutDays:       # 出金天数
+        actualPayout:     # 实际出金
+    validations:
+      required: true
+
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: How confident are you in these numbers?
+      options:
+        - high — read directly off the official page today
+        - medium — official but may be a list price / subject to promos
+        - low — partly assumed, or the firm runs a 2-step model we had to approximate
+    validations:
+      required: true
+
+  - type: textarea
+    id: caveats
+    attributes:
+      label: Caveats and assumptions
+      description: Which values are assumptions? Does the firm run a 2-step evaluation, a trailing vs. static drawdown, a payout gate rather than a target?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I ran `npm test` and the preset test suite passes.
+          required: true
+        - label: I understand presets are reference values, and the app tells users to verify with the firm.
+          required: true

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / usage help
+    url: https://github.com/MFLS2023/pf-roi-calculator/discussions
+    about: Ask how the model works, or how to read a result, in Discussions.
+  - name: Security issue
+    url: https://github.com/MFLS2023/pf-roi-calculator/security/advisories/new
+    about: Please report vulnerabilities privately — see SECURITY.md.

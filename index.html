@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>PF 投产比计算器 · Prop Firm ROI Calculator</title>
+    <meta
+      name="description"
+      content="用赌徒破产模型测算 Prop Firm 考试与出金通过率、期望买号数量与投产比（ROI）。支持离线使用，可安装到手机与桌面。"
+    />
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Icons -->
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+
+    <!-- iOS standalone -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PF ROI" />
+
+    <!-- Social preview -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="PF 投产比计算器 · Prop Firm ROI Calculator" />
+    <meta
+      property="og:description"
+      content="期望买号数量、总投入与 ROI 一次算清。纯前端、离线可用、开源。"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+
+  <body>
+    <div class="app" id="app">
+      <!-- ================= header ================= -->
+      <header class="app__header">
+        <div class="brand">
+          <div class="brand__logo" id="brand-logo" aria-hidden="true"></div>
+          <div class="brand__text">
+            <h1 class="brand__title" data-i18n="appTitle">ROI 计算器</h1>
+            <p class="brand__subtitle" data-i18n="appSubtitle">PF 投产比计算器</p>
+          </div>
+        </div>
+        <div class="app__header-actions">
+          <button
+            class="btn btn--chip is-hidden"
+            type="button"
+            id="install-btn"
+            data-i18n="installApp"
+          >
+            安装到设备
+          </button>
+          <button class="btn btn--chip" type="button" id="reset-btn" data-i18n="reset">
+            重置变量
+          </button>
+        </div>
+      </header>
+
+      <!-- ================= toolbar ================= -->
+      <div class="app__toolbar">
+        <div class="select-wrap" id="preset-wrap"></div>
+        <div class="select-wrap" id="lang-wrap"></div>
+      </div>
+      <p class="app__disclaimer" id="preset-note" hidden></p>
+
+      <!-- ================= body ================= -->
+      <div class="app__body">
+        <section class="pane pane--form" id="form-pane" aria-label="参数输入"></section>
+
+        <section class="pane pane--results">
+          <div id="metrics-host"></div>
+
+          <div class="roi" id="roi-card">
+            <div class="roi__title">
+              <span id="roi-icon" aria-hidden="true"></span>
+              <span data-i18n="roiTitle">投产回报率</span>
+            </div>
+            <!--
+              Deliberately NOT aria-live: this value is recomputed on every
+              keystroke, so a live region here would flood a screen reader.
+              Explicit announcements go through #sr-live instead.
+            -->
+            <div class="roi__value is-neutral" id="roi-value">--</div>
+            <div class="roi__foot" id="roi-foot"></div>
+            <div class="roi__note" id="roi-note"></div>
+            <div class="roi__verdict is-neutral is-hidden" id="roi-verdict"></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn--secondary" type="button" id="export-btn"></button>
+            <button class="btn btn--secondary" type="button" id="save-btn"></button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= comparison ================= -->
+      <div id="compare-host"></div>
+
+      <!-- ================= footer ================= -->
+      <footer class="app__footer">
+        <p><code id="footer-model">P = (D / (D + T))^N</code></p>
+        <p id="footer-disclaimer"></p>
+      </footer>
+    </div>
+
+    <div id="sr-live" class="sr-only" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

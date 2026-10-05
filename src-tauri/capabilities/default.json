@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Minimal capability set. The front-end is a pure offline calculator and needs no native APIs, so only the core defaults are granted.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}
