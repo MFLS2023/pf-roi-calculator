@@ -182,6 +182,10 @@ It is deliberately simple, and the simplifications matter:
    the same market regime, the same bad habits.
 6. **Drawdown types are flattened.** Trailing vs. static, intraday vs. end-of-day,
    and daily loss limits are all collapsed into a single `D`.
+7. **Consistency rules are ignored.** Many firms cap the best single day as a
+   percentage of total profit (Apex: 50%; FundedNext On-Demand: 40%; some payout
+   modes run 30–40%). The model does not simulate daily paths, so it cannot
+   enforce these caps — treat its output as the *unconstrained* expectancy.
 
 Every preset carries a confidence rating and a note explaining what was assumed.
 **Always verify current rules and pricing with the firm.**

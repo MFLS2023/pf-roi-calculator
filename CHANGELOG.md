@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   replaced with the three official payout options. The old mapping overstated
   the cost dramatically (e.g. Apex showed ~160 accounts / −94% ROI where the
   official rules imply roughly break-even).
+- **Document unmodelled consistency rules** — added limitation #7: firms cap the
+  best single day as a share of total profit (Apex 50%, FundedNext On-Demand
+  40%, some modes 30–40%), and the model treats its output as unconstrained
+  expectancy. Spotted while cross-checking against community teaching material.
 
 - **Desktop release workflow** — install the `aarch64-apple-darwin` and
   `x86_64-apple-darwin` Rust targets so the macOS universal build can actually
