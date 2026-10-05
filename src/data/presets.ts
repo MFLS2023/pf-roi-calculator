@@ -183,6 +183,58 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
       actualPayout: 1800,
     },
   },
+  {
+    id: 'fundednext-rapid-25k',
+    firm: 'FundedNext',
+    accountSize: 25000,
+    variant: { 'zh-CN': '25K · Rapid Pro', en: '25K · Rapid Pro' },
+    market: 'futures',
+    verifiedAt: '2026-10',
+    source: 'https://fundednext.com/futures/rapid',
+    confidence: 'medium',
+    note: {
+      'zh-CN':
+        '官方规则：考核阶段无一致性、无日损，1 天可过（目标 $1,500、EOD 回撤 $1,000）；获资阶段有 40% 一致性、单笔出金上限 $800（首笔）、最低 $250、每 3 天可领、分成 90%。⚠️ 分摊约定：因出金阶段 40% 一致性迫使至少分 3 天，本预设的「出金利润」填的是每天需达到的均摊利润（800÷3≈267）、天数填 3——不是总目标 800；这等效于「连续 3 天、每天 +267 先于 −1000」。实际到手 694.8 = 800×90%×96.5%（约 3.5% 出金手续费）。账号价格随促销浮动：官方当前半价 $79.99，社区折扣码价约 $90，请按实付修改。已按此参数有多个实战出金案例。',
+      en: 'Official rules: no consistency, no daily loss in the challenge (pass in 1 day; target $1,500, EOD MLL $1,000); the funded phase has a 40% consistency rule, $800 first-withdrawal cap, $250 minimum, rewards every 3 days, 90% split. ⚠️ Averaging convention: because the 40% consistency forces at least 3 days, this preset fills the payout-profit field with the PER-DAY share (800÷3≈267) and days = 3 — not the $800 total; equivalent to "three consecutive days of +267 before −1000". Actual payout 694.8 = 800×90%×96.5% (~3.5% payout fee). Price floats with promos: $79.99 (current official 50% off) vs ~$90 via creator codes — use what you actually paid. Multiple community cash-outs verified these parameters.',
+    },
+    inputs: {
+      costPerAccount: 90,
+      activationFee: 0,
+      examDrawdown: 1000,
+      examTarget: 1500,
+      examDays: 1,
+      payoutDrawdown: 1000,
+      payoutTarget: 267,
+      payoutDays: 3,
+      actualPayout: 694.8,
+    },
+  },
+  {
+    id: 'fundednext-flex-50k',
+    firm: 'FundedNext',
+    accountSize: 50000,
+    variant: { 'zh-CN': '50K · Flex', en: '50K · Flex' },
+    market: 'futures',
+    verifiedAt: '2026-10',
+    source: 'https://fundednext.com/general-rules/futures/trading-objectives',
+    confidence: 'medium',
+    note: {
+      'zh-CN':
+        '官方规则：考核阶段 40% 一致性（超限不判负，而是把目标按「最高单日÷40%」重算上调）、无日损，目标 $2,500、EOD 回撤 $1,500（随日结余额上移，锁在 $50,100）；获资阶段无一致性（可以暴击），每周期需 5 个 ≥$200 的基准日，出金只能提利润的 50%（提满 $1,500 上限需先赚到 $3,000），分成 95%，首次出金后 MLL 锁定、最多 5 次奖励。⚠️ 分摊约定：考试利润填 2500÷3≈834、天数填 3（40% 一致性迫使至少 3 天）。实际到手按顶格 1375 = 1500×95%×96.5%。注意：5 个基准日的研磨期不在模型内，实际比计算结果略难（社区有在混基准日阶段打炸账户的案例）。价格 $69.99 为官方前 5 次购入价（第 6 次起 $79.99）。',
+      en: 'Official rules: challenge has a 40% consistency rule that does NOT fail you — it recalculates the target upward (highest day ÷ 40%); no daily loss; target $2,500, EOD MLL $1,500 (trails on end-of-day balance, locks at $50,100). Funded phase has NO consistency (spikes allowed), needs 5 benchmark days ≥ $200 per cycle, pays out at most 50% of profit (to take the $1,500 cap you must first make $3,000), 95% split, MLL locks after the first payout, account concludes after 5 rewards. ⚠️ Averaging convention: the exam-profit field holds the per-day share (2500÷3≈834) with days = 3, because the 40% consistency forces at least 3 days. Actual payout models the cap: 1375 = 1500×95%×96.5%. Caveat: the 5-benchmark-day grind is outside the model — real life is slightly harder (community reports of accounts blown while grinding benchmark days). Price $69.99 is the official first-5-purchases rate ($79.99 from the 6th).',
+    },
+    inputs: {
+      costPerAccount: 69.99,
+      activationFee: 0,
+      examDrawdown: 1500,
+      examTarget: 834,
+      examDays: 3,
+      payoutDrawdown: 1500,
+      payoutTarget: 3000,
+      payoutDays: 1,
+      actualPayout: 1375,
+    },
+  },
 ]);
 
 /** Look up a preset by id. */

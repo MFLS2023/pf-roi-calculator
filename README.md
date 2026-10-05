@@ -181,7 +181,9 @@ It is deliberately simple, and the simplifications matter:
 5. **Independence is assumed.** Real attempts are correlated: the same trader,
    the same market regime, the same bad habits.
 6. **Drawdown types are flattened.** Trailing vs. static, intraday vs. end-of-day,
-   and daily loss limits are all collapsed into a single `D`.
+   and daily loss limits are all collapsed into a single `D`. Modes with a daily
+   loss limit are worse still: the effective risk is the daily loss, not the
+   total drawdown — community consensus is to skip such modes entirely.
 7. **Consistency rules are ignored.** Many firms cap the best single day as a
    percentage of total profit (Apex: 50%; FundedNext On-Demand: 40%; some payout
    modes run 30–40%). The model does not simulate daily paths, so it cannot
@@ -204,6 +206,12 @@ Each one records the URL it was verified against and the month it was checked.
 | Topstep 50K Combine | futures | $49/mo | 2000 / 3000 / 1 | 2000 / 2000 / 1 | 2026-10 | low |
 | FTMO 100K 1-Step | forex | $540 | 10000 / 10000 / 1 | 10000 / 10000 / 1 | 2026-10 | medium |
 | FundedNext Stellar 100K | forex | $550 | 10000 / 8000 / 2 | 10000 / 2000 / 1 | 2026-10 | medium |
+| FundedNext Rapid Pro 25K | futures | $90 | 1000 / 1500 / 1 | 1000 / 267 / 3 | 2026-10 | medium |
+| FundedNext Flex 50K | futures | $69.99 | 1500 / 834 / 3 | 1500 / 3000 / 1 | 2026-10 | medium |
+
+> \* In the two FundedNext futures presets the profit column holds the **per-day
+> share** of the target (their consistency rules force at least 3 days), not the
+> full target — see the notes inside `src/data/presets.ts`.
 
 Adding a firm is a one-object change in `src/data/presets.ts` — see
 [CONTRIBUTING.md](./CONTRIBUTING.md). There is a dedicated issue template for it.

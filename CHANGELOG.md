@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **FundedNext Futures presets** — `Rapid Pro 25K` and `Flex 50K`, verified
+  against the official rules pages and real community cash-outs (2026-10).
+  These follow the community "averaging convention": because FundedNext's 40%
+  consistency rule forces at least 3 days, the profit fields hold the per-day
+  share of the target (e.g. 800÷3≈267) with `days = 3`, which reproduces the
+  numbers taught in community material (Rapid 25K → ~5.08 accounts, ~+52% ROI).
+
 ### Fixed
 
 - **Firm presets corrected against official rules (2026-10)** — the payout phase
