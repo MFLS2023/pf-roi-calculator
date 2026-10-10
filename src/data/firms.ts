@@ -289,7 +289,7 @@ export const FIRMS: readonly Firm[] = [
       cnSupport: null,
       maxAccounts: '3个',
     },
-    presetRefs: [],
+    presetRefs: [{ id: 'ftmofutures-50k', drawdownType: null }],
     presetMappingNote: '本站现有 FTMO 预设是「外汇 1-Step」产品，与 FTMO 期货不是同一条产品线，因此未自动关联。若要看 FTMO 外汇的 ROI，请从上方预设下拉框直接选择。',
   },
   {
@@ -427,7 +427,7 @@ export const FIRMS: readonly Firm[] = [
       cnSupport: null,
       maxAccounts: null,
     },
-    presetRefs: [],
+    presetRefs: [{ id: 'phidias-50k', drawdownType: 'eod' }],
     presetMappingNote: null,
   },
   {
@@ -473,7 +473,7 @@ export const FIRMS: readonly Firm[] = [
       cnSupport: null,
       maxAccounts: '3个',
     },
-    presetRefs: [],
+    presetRefs: [{ id: 'purdia-50k', drawdownType: 'eod' }],
     presetMappingNote: null,
   },
   {
@@ -496,7 +496,7 @@ export const FIRMS: readonly Firm[] = [
       cnSupport: null,
       maxAccounts: '5+5',
     },
-    presetRefs: [],
+    presetRefs: [{ id: 'topone-50k', drawdownType: 'eod' }],
     presetMappingNote: null,
   },
   {

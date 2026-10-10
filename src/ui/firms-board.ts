@@ -38,7 +38,7 @@ function getPresetButtonLabel(firmSlug: string, presetId: string): string {
   }
 }
 
-function openPendingFirmModal(firm: Firm): void {
+function openPendingFirmModal(firm: Firm, options: FirmsBoardOptions): void {
   const overlay = h('div', { class: 'modal-overlay', role: 'dialog', 'aria-modal': 'true' });
   const closeBtn = h('button', {
     class: 'btn btn--chip btn--close',
@@ -50,9 +50,22 @@ function openPendingFirmModal(firm: Firm): void {
   const ackBtn = h('button', {
     class: 'btn btn--chip btn--sm',
     type: 'button',
-    text: '我知道了',
+    text: '关闭',
   });
   ackBtn.addEventListener('click', () => overlay.remove());
+
+  const templateBtn = h('button', {
+    class: 'btn btn--primary btn--sm',
+    type: 'button',
+    text: '💡 载入标准 50K 模板快速估算',
+  });
+  templateBtn.addEventListener('click', () => {
+    overlay.remove();
+    options.onApplyPreset('standard-50k-template');
+    toast(`已载入标准 50K 模板，请在左侧填入 ${firm.name} 实付价格`, 'success', 4000);
+    const form = qs('#form-pane');
+    if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
   const dialog = h('div', { class: 'firm-detail-dialog' }, [
     h('div', { class: 'firm-detail-dialog__header' }, [
@@ -69,10 +82,11 @@ function openPendingFirmModal(firm: Firm): void {
       class: 'firm-detail-dialog__hint',
       text: firm.presetMappingNote || '该机构的基础规则已归集，但具体产品报名费因常年大额促销（往往有 50%~90% 折扣）波动较大。',
     }),
-    h('div', { class: 'modal__actions', style: 'display: flex; gap: 8px; justify-content: flex-end;' }, [
+    h('div', { class: 'modal__actions', style: 'display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;' }, [
+      templateBtn,
       firm.officialUrl
         ? h('a', {
-            class: 'btn btn--primary btn--sm',
+            class: 'btn btn--outline btn--sm',
             href: firm.officialUrl,
             target: '_blank',
             rel: 'noopener noreferrer',
@@ -306,11 +320,14 @@ export function createFirmsBoard(options: FirmsBoardOptions): FirmsBoardInstance
           h('span', { class: 'firm-card__split', text: splitText }),
         ]),
         h('div', { class: 'firm-card__badges' }, [
+          firm.presetRefs.length > 0
+            ? h('span', { class: 'badge badge--confidence badge--medium', text: '核实 2026-10 · medium' })
+            : null,
           h('span', { class: `badge ${dd.cls}`, text: dd.label }),
           h('span', { class: `badge ${vpn.cls}`, text: vpn.label }),
           h('span', { class: `badge ${cn.cls}`, text: cn.label }),
           h('span', { class: 'badge badge--neutral', text: maxText }),
-        ]),
+        ].filter(Boolean) as HTMLElement[]),
       ]);
 
       // 操作与预设联动
@@ -357,7 +374,7 @@ export function createFirmsBoard(options: FirmsBoardOptions): FirmsBoardInstance
           text: '📝 ROI参数待核对（点击查看）',
         });
         hintBtn.addEventListener('click', () => {
-          openPendingFirmModal(firm);
+          openPendingFirmModal(firm, options);
         });
         actionArea.append(hintBtn);
       }

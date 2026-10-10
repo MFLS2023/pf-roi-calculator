@@ -36,8 +36,8 @@ const EXPECTED = {
   firmsWithCard: 21,
   /** 明确写「不支持中国大陆」的机构数。 */
   firmsCnUnsupported: 2,
-  /** 已核对、可一键载入 ROI 参数的机构数（含首批新增的主流机构）。 */
-  firmsWithPreset: 10,
+  /** 已核对、可一键载入 ROI 参数的机构数（涵盖主流与 P0 重点机构）。 */
+  firmsWithPreset: 14,
 } as const;
 
 const DRAWDOWN_TYPES: readonly DrawdownType[] = [
@@ -255,8 +255,12 @@ describe('机构数据库（firms.ts）', () => {
       'apex',
       'bulenox',
       'e2t',
+      'ftmofutures',
       'fundednext',
       'lucid',
+      'phidias',
+      'purdia',
+      'topone',
       'topstep',
       'tpt',
       'tradeday',
@@ -268,13 +272,9 @@ describe('机构数据库（firms.ts）', () => {
     // Apex 有 2 条产品线预设 (EOD + Intraday)
     const apex = FIRMS.find((f) => f.slug === 'apex');
     expect(apex?.presetRefs).toHaveLength(2);
-  });
-
-  it('产品线不同时不硬关联，而是写明原因', () => {
+    // FTMO 期货有专门的期货预设
     const ftmo = FIRMS.find((f) => f.slug === 'ftmofutures');
-    expect(ftmo, '应存在 ftmofutures').toBeDefined();
-    expect(ftmo!.presetRefs, 'FTMO 期货与 FTMO 外汇预设不是同一产品').toEqual([]);
-    expect(ftmo!.presetMappingNote, '必须给出原因，不能只是空白').toBeTruthy();
+    expect(ftmo?.presetRefs).toHaveLength(1);
   });
 
   it('已知的机构级/产品级分歧被如实保留（Apex 卡片 Intraday vs 预设 EOD）', () => {

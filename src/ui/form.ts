@@ -62,10 +62,18 @@ export function createForm(options: {
     for (const spec of group.fields) {
       const inputId = `f-${spec.key}`;
       const unit = h('span', { class: 'field__unit', text: unitSuffix(spec) });
+      const promoBadge =
+        spec.key === 'costPerAccount'
+          ? h('span', {
+              class: 'field__promo-hint',
+              text: '（常有大促，按实付改）',
+              style: 'font-size: 11px; color: var(--accent); margin-left: 4px; font-weight: 500;',
+            })
+          : null;
       const label = h(
         'label',
         { class: 'field__label', for: inputId, title: dict[spec.hintKey] },
-        [document.createTextNode(`${dict[spec.labelKey]} `), unit],
+        [document.createTextNode(`${dict[spec.labelKey]} `), unit, promoBadge].filter(Boolean) as (Node | string)[],
       );
 
       const input = h('input', {
