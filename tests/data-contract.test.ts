@@ -36,8 +36,8 @@ const EXPECTED = {
   firmsWithCard: 21,
   /** 明确写「不支持中国大陆」的机构数。 */
   firmsCnUnsupported: 2,
-  /** 已核对、可一键载入 ROI 参数的机构数（涵盖主流与 P0 重点机构）。 */
-  firmsWithPreset: 14,
+  /** 已核对、可一键载入 ROI 参数的机构数（涵盖全部 21 家可见卡片）。 */
+  firmsWithPreset: 21,
 } as const;
 
 const DRAWDOWN_TYPES: readonly DrawdownType[] = [
@@ -253,18 +253,25 @@ describe('机构数据库（firms.ts）', () => {
     expect(withPreset.map((f) => f.slug).sort()).toEqual([
       'alpha',
       'apex',
+      'blusky',
       'bulenox',
       'e2t',
+      'fff',
+      'ffn',
       'ftmofutures',
       'fundednext',
+      'launch',
       'lucid',
+      'nexgen',
       'phidias',
+      'phoenix',
       'purdia',
       'topone',
       'topstep',
       'tpt',
       'tradeday',
       'tradeify',
+      'vest',
     ]);
     // FundedNext 有 3 条产品线预设
     const fn = FIRMS.find((f) => f.slug === 'fundednext');
