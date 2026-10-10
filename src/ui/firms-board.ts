@@ -1,4 +1,5 @@
 import { type Firm, type TriState, type VpnPolicy, type DrawdownType } from '../data/firms';
+import { getPreset, type Confidence } from '../data/presets';
 import {
   allFilters,
   filterFirms,
@@ -9,6 +10,21 @@ import {
 } from '../domain/firm-filter';
 import { h, qs } from './dom';
 import { toast } from './toast';
+
+/** verifiedAt is YYYY-MM; treat older than ~90 days as possibly stale. */
+function isVerifiedStale(verifiedAt: string): boolean {
+  const m = /^(\d{4})-(\d{2})$/.exec(verifiedAt);
+  if (!m) return true;
+  const verified = Date.UTC(Number(m[1]), Number(m[2]) - 1, 1);
+  const now = Date.now();
+  return now - verified > 90 * 24 * 60 * 60 * 1000;
+}
+
+function confidenceBadgeText(confidence: Confidence, verifiedAt: string): string {
+  const stale = isVerifiedStale(verifiedAt);
+  const base = `核实 ${verifiedAt} · ${confidence}`;
+  return stale ? `${base} · 可能过期` : base;
+}
 
 export interface FirmsBoardOptions {
   onApplyPreset: (presetId: string) => void;
@@ -62,7 +78,11 @@ function openPendingFirmModal(firm: Firm, options: FirmsBoardOptions): void {
   templateBtn.addEventListener('click', () => {
     overlay.remove();
     options.onApplyPreset('standard-50k-template');
-    toast(`已载入标准 50K 模板，请在左侧填入 ${firm.name} 实付价格`, 'success', 4000);
+    toast(
+      `已载入【通用】标准 50K 模板（非 ${firm.name} 官方参数），请按官网实付改价`,
+      'success',
+      5000,
+    );
     const form = qs('#form-pane');
     if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
@@ -77,10 +97,21 @@ function openPendingFirmModal(firm: Firm, options: FirmsBoardOptions): void {
       h('li', {}, [h('strong', { text: '回撤类型：' }), h('span', { text: firm.raw.drawdownType || '未标注' })]),
       h('li', {}, [h('strong', { text: '梯子政策：' }), h('span', { text: firm.raw.vpnPolicy || '未标注' })]),
       h('li', {}, [h('strong', { text: '账号上限：' }), h('span', { text: firm.raw.maxAccounts || '未标注' })]),
+      h('li', {}, [
+        h('strong', { text: '大陆支持：' }),
+        h('span', { text: firm.raw.cnSupport || '未标注（不是「不支持」）' }),
+      ]),
     ]),
     h('p', {
       class: 'firm-detail-dialog__hint',
-      text: firm.presetMappingNote || '该机构的基础规则已归集，但具体产品报名费因常年大额促销（往往有 50%~90% 折扣）波动较大。',
+      text:
+        firm.presetMappingNote ||
+        '该机构的基础规则已归集，但具体产品报名费因常年大额促销（往往有 50%~90% 折扣）波动较大。',
+    }),
+    h('p', {
+      class: 'firm-detail-dialog__hint firm-detail-dialog__hint--warn',
+      style: 'margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: 13px; line-height: 1.45;',
+      text: '⚠️「标准 50K 模板」是行业通用估算模型，不是该机构的官方报价。载入后请务必按官网实付价格与出金规则修改左侧参数。',
     }),
     h('div', { class: 'modal__actions', style: 'display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;' }, [
       templateBtn,
@@ -93,6 +124,13 @@ function openPendingFirmModal(firm: Firm, options: FirmsBoardOptions): void {
             text: '打开官网查看最新报价 ↗',
           })
         : null,
+      h('a', {
+        class: 'btn btn--outline btn--sm',
+        href: firm.sourceUrl,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        text: '规则页 ↗',
+      }),
       ackBtn,
     ].filter(Boolean) as HTMLElement[]),
   ]);
@@ -213,25 +251,28 @@ export function createFirmsBoard(options: FirmsBoardOptions): FirmsBoardInstance
   }
 
   function renderFilters(): void {
+    const cnUnknown = countByDimension('cn').get('unknown') ?? 0;
+    const vpnUnknown = countByDimension('vpn').get('unknown') ?? 0;
+    const ddUnknown = countByDimension('drawdown').get('unknown') ?? 0;
     filterSection.replaceChildren(
       renderFilterGroup('drawdown', '回撤类型', ['eod', 'intraday', 'tdd', 'static', 'unknown'], {
         eod: 'EOD 日终',
         intraday: '日内尾随',
         tdd: 'TDD 追踪',
         static: '静态回撤',
-        unknown: '未标注',
+        unknown: ddUnknown > 0 ? `未标注 (${ddUnknown})` : '未标注',
       }),
       renderFilterGroup('vpn', '梯子/VPN', ['allowed', 'conditional', 'discouraged', 'forbidden', 'unknown'], {
         allowed: '允许',
         conditional: '有条件',
         discouraged: '不建议',
         forbidden: '严禁',
-        unknown: '未标注',
+        unknown: vpnUnknown > 0 ? `未标注 (${vpnUnknown})` : '未标注',
       }),
       renderFilterGroup('cn', '大陆用户', ['yes', 'no', 'unknown'], {
         yes: '明确支持',
         no: '明确不支持',
-        unknown: '未标注 (19家)',
+        unknown: cnUnknown > 0 ? `未标注 (${cnUnknown}家)` : '未标注',
       }),
     );
   }
@@ -320,9 +361,24 @@ export function createFirmsBoard(options: FirmsBoardOptions): FirmsBoardInstance
           h('span', { class: 'firm-card__split', text: splitText }),
         ]),
         h('div', { class: 'firm-card__badges' }, [
-          firm.presetRefs.length > 0
-            ? h('span', { class: 'badge badge--confidence badge--medium', text: '核实 2026-10 · medium' })
-            : null,
+          (() => {
+            if (firm.presetRefs.length === 0) return null;
+            const first = getPreset(firm.presetRefs[0].id);
+            if (!first) {
+              return h('span', {
+                class: 'badge badge--confidence badge--medium',
+                text: '核实 2026-10 · medium',
+              });
+            }
+            const stale = isVerifiedStale(first.verifiedAt);
+            return h('span', {
+              class: `badge badge--confidence badge--${first.confidence}${stale ? ' badge--stale' : ''}`,
+              text: confidenceBadgeText(first.confidence, first.verifiedAt),
+              title: stale
+                ? '核实日期距今超过约 90 天，规则可能已变更，请以官网为准'
+                : undefined,
+            });
+          })(),
           h('span', { class: `badge ${dd.cls}`, text: dd.label }),
           h('span', { class: `badge ${vpn.cls}`, text: vpn.label }),
           h('span', { class: `badge ${cn.cls}`, text: cn.label }),

@@ -477,11 +477,11 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
     market: 'futures',
     verifiedAt: '2026-10',
     source: 'https://phidiaspropfirm.com',
-    confidence: 'medium',
+    confidence: 'low',
     note: {
       'zh-CN':
-        '官方规则：50K 标价 $150（常有 60%~80% 促销优惠码），通过后获资激活费 $139。考核目标 6%（$3,000），EOD 日终回撤 $2,500，无最低交易天数。获资出金分成 90%，出金缓冲期较短。本预设建模首笔提现 $2,000 利润，90% 到手 $1,800。',
-      en: 'Official rules: 50K list $150 (frequent 60%-80% off coupons), $139 funded activation fee. Eval target 6% ($3,000), EOD drawdown $2,500, no minimum days. 90% profit split. Models first payout of $2,000 profit netting $1,800 at 90%.',
+        '来源仅为官网首页级信息（非逐条帮助中心核对），置信度标为 low。50K 标价约 $150（常有 60%~80% 促销），激活费约 $139；考核目标约 6%（$3,000）、EOD 回撤约 $2,500。出金按 90% 粗算首笔 $1,800。请以官网结账页为准并按实付改价。',
+      en: 'Sourced from homepage-level info only (not a line-by-line help-centre audit) — confidence low. ~$150 list (frequent coupons), ~$139 activation; ~6% target / ~$2,500 EOD. Models ~$1,800 first payout at 90%. Verify on the official checkout page.',
     },
     inputs: {
       costPerAccount: 150,
@@ -503,11 +503,11 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
     market: 'futures',
     verifiedAt: '2026-10',
     source: 'https://purdiacapital.com',
-    confidence: 'medium',
+    confidence: 'low',
     note: {
       'zh-CN':
-        '官方规则：50K 标价 $120，免激活费。考核目标 6%（$3,000），EOD 日终回撤 $2,000，官方无最低交易天数限制。获资阶段分成 90%，出金规则透明。本预设建模首笔提现 $2,000 利润，90% 到手 $1,800。',
-      en: 'Official rules: 50K is $120, no activation fee. Eval target 6% ($3,000), EOD drawdown $2,000, no minimum days. 90% profit split in funded stage. Models first payout of $2,000 profit netting $1,800 at 90%.',
+        '来源为官网汇总级信息，未逐条对照帮助中心全文，置信度 low。约 $120 标价、免激活；目标约 $3,000、EOD 回撤约 $2,000；出金按 90% 粗算 $1,800。请以官网为准并按实付修改。',
+      en: 'Homepage-level summary only — confidence low. ~$120 list, no activation; ~$3,000 target / ~$2,000 EOD; ~$1,800 at 90%. Confirm on the official site and adjust cost to what you paid.',
     },
     inputs: {
       costPerAccount: 120,
@@ -529,11 +529,11 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
     market: 'futures',
     verifiedAt: '2026-10',
     source: 'https://www.toponefutures.com',
-    confidence: 'medium',
+    confidence: 'low',
     note: {
       'zh-CN':
-        '官方规则：50K 计划标价 $110，免激活费。考核目标 6%（$3,000），EOD 日终回撤 $2,000，无最低交易天数限制。获资出金分成 90%，无每日亏损硬限制。本预设建模首笔出金：赚取 $2,000 利润，90% 到手 $1,800。',
-      en: 'Official rules: 50K plan is $110, no activation fee. Eval target 6% ($3,000), EOD drawdown $2,000, no minimum days. 90% profit split. Models first withdrawal of $2,000 netting $1,800 at 90%.',
+        '来源为官网汇总级信息，置信度 low。约 $110 标价、免激活；目标约 $3,000、EOD 回撤约 $2,000；出金按 90% 粗算 $1,800。梯子政策要求尽量固定地区。请以官网结账页为准。',
+      en: 'Homepage-level summary only — confidence low. ~$110 list, no activation; ~$3,000 target / ~$2,000 EOD; ~$1,800 at 90%. VPN policy: keep a stable region. Confirm on the official checkout page.',
     },
     inputs: {
       costPerAccount: 110,
@@ -557,8 +557,8 @@ export const PRESETS: readonly FirmPreset[] = Object.freeze([
     confidence: 'low',
     note: {
       'zh-CN':
-        '用于未核准精细参数的机构进行快速测算：基于行业通用标准 50K 规模建模（目标 $3,000、回撤 $2,000、出金按 90% 分成实得 $1,800）。请根据你购买的实付折扣价在左侧修改「单号成本」。',
-      en: 'A standard 50K template for quick estimation: $3,000 target, $2,000 drawdown, 90% split ($1,800 payout). Please adjust the cost to your actual purchase price.',
+        '【非任何一家机构的官方参数】行业通用 50K 估算模板：目标 $3,000、EOD 回撤 $2,000、出金按 90% 粗算 $1,800。仅用于待核对机构的快速试算。请务必按该机构官网实付价格与真实出金规则修改左侧全部参数。',
+      en: '[NOT an official firm quote] Generic 50K template: $3,000 target, $2,000 EOD drawdown, ~$1,800 at 90%. For pending firms only. Always replace costs and payout rules with the firm’s official numbers.',
     },
     inputs: {
       costPerAccount: 100,

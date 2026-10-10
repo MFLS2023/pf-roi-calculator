@@ -82,17 +82,36 @@ const presetNote = must<HTMLElement>('#preset-note');
 
 function buildPresetSelect(): void {
   const dict = t();
-  const options: HTMLOptionElement[] = [
+  const nodes: HTMLElement[] = [
     h('option', { value: CUSTOM_PRESET_ID, text: dict.presetCustom }),
   ];
+
+  // Group by firm so the long list is scannable.
+  const order: string[] = [];
+  const groups = new Map<string, Array<(typeof PRESETS)[number]>>();
   for (const preset of PRESETS) {
-    const size = presetAccountSizeLabel(preset);
-    const label = [preset.firm, size, pick(preset.variant, getLocale())]
-      .filter(Boolean)
-      .join(' · ');
-    options.push(h('option', { value: preset.id, text: label }));
+    const key = preset.firm;
+    if (!groups.has(key)) {
+      groups.set(key, []);
+      order.push(key);
+    }
+    groups.get(key)!.push(preset);
   }
-  presetSelect.replaceChildren(...options);
+
+  for (const firm of order) {
+    const presets = groups.get(firm)!;
+    const optgroup = h('optgroup', { label: firm });
+    for (const preset of presets) {
+      const size = presetAccountSizeLabel(preset);
+      const conf = preset.confidence !== 'high' ? ` [${preset.confidence}]` : '';
+      const label =
+        [size, pick(preset.variant, getLocale())].filter(Boolean).join(' · ') + conf;
+      optgroup.append(h('option', { value: preset.id, text: label || preset.id }));
+    }
+    nodes.push(optgroup);
+  }
+
+  presetSelect.replaceChildren(...nodes);
   presetSelect.value = store.get().presetId;
 }
 

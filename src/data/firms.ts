@@ -14,11 +14,14 @@
  * ⚠️ 两个必须知道的边界，UI 不要越过：
  *   1. 本文件只有「机构级摘要」（分成 / 回撤 / VPN / 大陆 / 账号上限）。
  *      计算器需要的 9 个产品级 ROI 参数不在其中 —— 它们只存在于
- *      src/data/presets.ts，且目前只有 6 条预设经过核对。
- *      因此 presetRefs 为空的机构**不能**一键载入参数，UI 必须说清楚。
+ *      src/data/presets.ts（多条已核对预设；presetRefs 为空的机构不能一键载入）。
  *   2. 卡片是机构级、预设是产品级，两者可能不一致。
- *      例：Apex 卡片写 Intraday，但已核对预设是 50K EOD 账户。
+ *      例：Apex 卡片写 Intraday，但已核对预设含 50K EOD 与 Intraday。
  *      展示时两个都给出，不要用一个覆盖另一个。
+ *
+ * 手工补充说明（2026-10）：
+ *   - officialUrl / presetRefs / presetMappingNote / TradeDay 回撤类型等
+ *     可能已在导出后人工校准；下次跑 export_web.py 时请合并这些字段，避免覆盖。
  */
 
 /** 三态布尔：明确是 / 明确否 / 来源未提供。 */
@@ -175,7 +178,8 @@ export const FIRMS: readonly Firm[] = [
       maxAccounts: '2个',
     },
     presetRefs: [],
-    presetMappingNote: null,
+    presetMappingNote:
+      '尚未核对产品级 ROI 参数。可用「标准 50K 模板」快速估算；官网 blusky.pro。',
   },
   {
     slug: 'bulenox',
@@ -220,14 +224,14 @@ export const FIRMS: readonly Firm[] = [
       cnSupport: null,
       maxAccounts: '3个',
     },
-    presetRefs: [{ id: 'e2t-50k-tcp', drawdownType: null }],
+    presetRefs: [{ id: 'e2t-50k-tcp', drawdownType: 'eod' }],
     presetMappingNote: null,
   },
   {
     slug: 'fff',
     name: 'Funded Futures Family 规则指南',
     sourceUrl: 'https://propfirmvip.com/rule/fff.html',
-    officialUrl: null,
+    officialUrl: 'https://www.fundedfuturesfamily.com',
     crawledAt: '2026-10-05T21:12:12+08:00',
     cardAvailable: true,
     profitSplit: { min: 80, max: 80 },
@@ -244,13 +248,14 @@ export const FIRMS: readonly Firm[] = [
       maxAccounts: '5个',
     },
     presetRefs: [],
-    presetMappingNote: null,
+    presetMappingNote:
+      '尚未核对产品级 ROI 参数（报名费/激活费/出金门槛随促销变动大）。可用「标准 50K 模板」快速估算，再按官网实付改价。',
   },
   {
     slug: 'ffn',
     name: 'Funded Futures Network 规则指南',
     sourceUrl: 'https://propfirmvip.com/rule/ffn.html',
-    officialUrl: null,
+    officialUrl: 'https://fundedfuturesnetwork.com',
     crawledAt: '2026-10-05T21:12:03+08:00',
     cardAvailable: true,
     profitSplit: { min: 90, max: 90 },
@@ -267,7 +272,8 @@ export const FIRMS: readonly Firm[] = [
       maxAccounts: '5个',
     },
     presetRefs: [],
-    presetMappingNote: null,
+    presetMappingNote:
+      '尚未核对产品级 ROI 参数。可用「标准 50K 模板」快速估算；官方站点 fundedfuturesnetwork.com。',
   },
   {
     slug: 'ftmofutures',
@@ -289,8 +295,8 @@ export const FIRMS: readonly Firm[] = [
       cnSupport: null,
       maxAccounts: '3个',
     },
-    presetRefs: [{ id: 'ftmofutures-50k', drawdownType: null }],
-    presetMappingNote: '本站现有 FTMO 预设是「外汇 1-Step」产品，与 FTMO 期货不是同一条产品线，因此未自动关联。若要看 FTMO 外汇的 ROI，请从上方预设下拉框直接选择。',
+    presetRefs: [{ id: 'ftmofutures-50k', drawdownType: 'eod' }],
+    presetMappingNote: null,
   },
   {
     slug: 'fundednext',
@@ -312,7 +318,11 @@ export const FIRMS: readonly Firm[] = [
       cnSupport: null,
       maxAccounts: '5个',
     },
-    presetRefs: [{ id: 'fundednext-stellar-100k', drawdownType: null }, { id: 'fundednext-rapid-25k', drawdownType: null }, { id: 'fundednext-flex-50k', drawdownType: null }],
+    presetRefs: [
+      { id: 'fundednext-stellar-100k', drawdownType: null },
+      { id: 'fundednext-rapid-25k', drawdownType: 'eod' },
+      { id: 'fundednext-flex-50k', drawdownType: 'eod' },
+    ],
     presetMappingNote: null,
   },
   {
@@ -336,7 +346,8 @@ export const FIRMS: readonly Firm[] = [
       maxAccounts: '5个',
     },
     presetRefs: [],
-    presetMappingNote: null,
+    presetMappingNote:
+      '尚未核对产品级 ROI 参数。可用「标准 50K 模板」快速估算，请按官网实付改价。',
   },
   {
     slug: 'lucid',
@@ -382,7 +393,8 @@ export const FIRMS: readonly Firm[] = [
       maxAccounts: '3个',
     },
     presetRefs: [],
-    presetMappingNote: null,
+    presetMappingNote:
+      '尚未核对产品级 ROI 参数。可用「标准 50K 模板」快速估算。',
   },
   {
     slug: 'p1futures',
@@ -451,7 +463,8 @@ export const FIRMS: readonly Firm[] = [
       maxAccounts: '根据类型',
     },
     presetRefs: [],
-    presetMappingNote: null,
+    presetMappingNote:
+      '尚未核对产品级 ROI 参数。可用「标准 50K 模板」快速估算；官网 phoenixtraderfunding.com。',
   },
   {
     slug: 'purdia',
@@ -519,7 +532,7 @@ export const FIRMS: readonly Firm[] = [
       cnSupport: null,
       maxAccounts: '5个',
     },
-    presetRefs: [{ id: 'topstep-50k-combine', drawdownType: null }],
+    presetRefs: [{ id: 'topstep-50k-combine', drawdownType: 'eod' }],
     presetMappingNote: null,
   },
   {
@@ -553,14 +566,14 @@ export const FIRMS: readonly Firm[] = [
     crawledAt: '2026-10-05T21:11:54+08:00',
     cardAvailable: true,
     profitSplit: { min: 80, max: 80 },
-    drawdownType: 'unknown',
+    drawdownType: 'eod',
     vpnPolicy: 'conditional',
     cnSupport: 'unknown',
     maxAccounts: 5,
     extraNotes: { '推荐类型': 'FastPass' },
     raw: {
       profitSplit: '80%',
-      drawdownType: null,
+      drawdownType: 'EOD',
       vpnPolicy: '允许（特例）',
       cnSupport: null,
       maxAccounts: '5个',
@@ -612,6 +625,7 @@ export const FIRMS: readonly Firm[] = [
       maxAccounts: '10个',
     },
     presetRefs: [],
-    presetMappingNote: null,
+    presetMappingNote:
+      '尚未核对产品级 ROI 参数。可用「标准 50K 模板」快速估算。',
   },
 ];
