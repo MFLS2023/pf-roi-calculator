@@ -1146,6 +1146,64 @@
   color: var(--text-muted);
 }
 
+.firm-card__links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.firm-card__link--official {
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
+.firm-detail-dialog {
+  width: min(480px, 92vw);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1100;
+}
+
+.firm-detail-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.firm-detail-dialog__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-title);
+}
+
+.firm-detail-dialog__meta-list {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-card);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.firm-detail-dialog__hint {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0;
+}
+
 /* Modal */
 .modal {
   width: min(1040px, 96vw);

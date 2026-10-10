@@ -1,4 +1,4 @@
-import { type TriState, type VpnPolicy, type DrawdownType } from '../data/firms';
+import { type Firm, type TriState, type VpnPolicy, type DrawdownType } from '../data/firms';
 import {
   allFilters,
   filterFirms,
@@ -19,6 +19,75 @@ export interface FirmsBoardInstance {
   close: () => void;
   toggle: () => void;
   isOpen: () => boolean;
+}
+
+function getPresetButtonLabel(firmSlug: string, presetId: string): string {
+  switch (presetId) {
+    case 'apex-50k-eod':
+      return '50K EOD 日终';
+    case 'apex-50k-intraday':
+      return '50K 盘中追踪';
+    case 'fundednext-stellar-100k':
+      return 'Stellar 100K';
+    case 'fundednext-rapid-25k':
+      return 'Rapid 25K';
+    case 'fundednext-flex-50k':
+      return 'Flex 50K';
+    default:
+      return presetId.replace(`${firmSlug}-`, '').toUpperCase();
+  }
+}
+
+function openPendingFirmModal(firm: Firm): void {
+  const overlay = h('div', { class: 'modal-overlay', role: 'dialog', 'aria-modal': 'true' });
+  const closeBtn = h('button', {
+    class: 'btn btn--chip btn--close',
+    type: 'button',
+    text: '✕',
+  });
+  closeBtn.addEventListener('click', () => overlay.remove());
+
+  const ackBtn = h('button', {
+    class: 'btn btn--chip btn--sm',
+    type: 'button',
+    text: '我知道了',
+  });
+  ackBtn.addEventListener('click', () => overlay.remove());
+
+  const dialog = h('div', { class: 'firm-detail-dialog' }, [
+    h('div', { class: 'firm-detail-dialog__header' }, [
+      h('h3', { class: 'firm-detail-dialog__title', text: `${firm.name} · ROI 参数核对说明` }),
+      closeBtn,
+    ]),
+    h('ul', { class: 'firm-detail-dialog__meta-list' }, [
+      h('li', {}, [h('strong', { text: '分成比例：' }), h('span', { text: firm.raw.profitSplit || '未标注' })]),
+      h('li', {}, [h('strong', { text: '回撤类型：' }), h('span', { text: firm.raw.drawdownType || '未标注' })]),
+      h('li', {}, [h('strong', { text: '梯子政策：' }), h('span', { text: firm.raw.vpnPolicy || '未标注' })]),
+      h('li', {}, [h('strong', { text: '账号上限：' }), h('span', { text: firm.raw.maxAccounts || '未标注' })]),
+    ]),
+    h('p', {
+      class: 'firm-detail-dialog__hint',
+      text: firm.presetMappingNote || '该机构的基础规则已归集，但具体产品报名费因常年大额促销（往往有 50%~90% 折扣）波动较大。',
+    }),
+    h('div', { class: 'modal__actions', style: 'display: flex; gap: 8px; justify-content: flex-end;' }, [
+      firm.officialUrl
+        ? h('a', {
+            class: 'btn btn--primary btn--sm',
+            href: firm.officialUrl,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            text: '打开官网查看最新报价 ↗',
+          })
+        : null,
+      ackBtn,
+    ].filter(Boolean) as HTMLElement[]),
+  ]);
+
+  overlay.append(dialog);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+  document.body.append(overlay);
 }
 
 /** 辅助格式化标签文本与颜色 */
@@ -215,13 +284,24 @@ export function createFirmsBoard(options: FirmsBoardOptions): FirmsBoardInstance
         h('div', { class: 'firm-card__header' }, [
           h('div', { class: 'firm-card__name-wrap' }, [
             h('h3', { class: 'firm-card__name', text: firm.name }),
-            h('a', {
-              class: 'firm-card__link',
-              href: firm.sourceUrl,
-              target: '_blank',
-              rel: 'noopener noreferrer',
-              text: '规则页 ↗',
-            }),
+            h('div', { class: 'firm-card__links' }, [
+              firm.officialUrl
+                ? h('a', {
+                    class: 'firm-card__link firm-card__link--official',
+                    href: firm.officialUrl,
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    text: '官网 ↗',
+                  })
+                : null,
+              h('a', {
+                class: 'firm-card__link',
+                href: firm.sourceUrl,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                text: '规则页 ↗',
+              }),
+            ].filter(Boolean) as HTMLElement[]),
           ]),
           h('span', { class: 'firm-card__split', text: splitText }),
         ]),
@@ -258,7 +338,7 @@ export function createFirmsBoard(options: FirmsBoardOptions): FirmsBoardInstance
             const btn = h('button', {
               class: 'btn btn--chip btn--sm',
               type: 'button',
-              text: ref.id.replace(`${firm.slug}-`, '').toUpperCase(),
+              text: getPresetButtonLabel(firm.slug, ref.id),
             });
             btn.addEventListener('click', () => {
               options.onApplyPreset(ref.id);
@@ -277,8 +357,7 @@ export function createFirmsBoard(options: FirmsBoardOptions): FirmsBoardInstance
           text: '📝 ROI参数待核对（点击查看）',
         });
         hintBtn.addEventListener('click', () => {
-          const reason = firm.presetMappingNote || '该机构的具体产品参数（报名费、回撤金额）尚未核对，请参考规则页手工输入';
-          toast(`${firm.name}: ${reason}`, 'info', 4500);
+          openPendingFirmModal(firm);
         });
         actionArea.append(hintBtn);
       }

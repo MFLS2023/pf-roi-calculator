@@ -36,8 +36,8 @@ const EXPECTED = {
   firmsWithCard: 21,
   /** 明确写「不支持中国大陆」的机构数。 */
   firmsCnUnsupported: 2,
-  /** 已核对、可一键载入 ROI 参数的机构数。 */
-  firmsWithPreset: 3,
+  /** 已核对、可一键载入 ROI 参数的机构数（含首批新增的主流机构）。 */
+  firmsWithPreset: 10,
 } as const;
 
 const DRAWDOWN_TYPES: readonly DrawdownType[] = [
@@ -250,10 +250,24 @@ describe('机构数据库（firms.ts）', () => {
   it('只有已核对过 ROI 参数的机构才允许挂预设', () => {
     const withPreset = FIRMS.filter((f) => f.presetRefs.length > 0);
     expect(withPreset).toHaveLength(EXPECTED.firmsWithPreset);
-    expect(withPreset.map((f) => f.slug).sort()).toEqual(['apex', 'fundednext', 'topstep']);
+    expect(withPreset.map((f) => f.slug).sort()).toEqual([
+      'alpha',
+      'apex',
+      'bulenox',
+      'e2t',
+      'fundednext',
+      'lucid',
+      'topstep',
+      'tpt',
+      'tradeday',
+      'tradeify',
+    ]);
     // FundedNext 有 3 条产品线预设
     const fn = FIRMS.find((f) => f.slug === 'fundednext');
     expect(fn?.presetRefs).toHaveLength(3);
+    // Apex 有 2 条产品线预设 (EOD + Intraday)
+    const apex = FIRMS.find((f) => f.slug === 'apex');
+    expect(apex?.presetRefs).toHaveLength(2);
   });
 
   it('产品线不同时不硬关联，而是写明原因', () => {
