@@ -1,0 +1,331 @@
+import { type TriState, type VpnPolicy, type DrawdownType } from '../data/firms';
+import {
+  allFilters,
+  filterFirms,
+  countByDimension,
+  toggleFilterValue,
+  type FirmFilters,
+  type FilterDimension,
+} from '../domain/firm-filter';
+import { h, qs } from './dom';
+import { toast } from './toast';
+
+export interface FirmsBoardOptions {
+  onApplyPreset: (presetId: string) => void;
+}
+
+export interface FirmsBoardInstance {
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
+  isOpen: () => boolean;
+}
+
+/** 辅助格式化标签文本与颜色 */
+function formatDrawdownLabel(type: DrawdownType): { label: string; cls: string } {
+  switch (type) {
+    case 'eod':
+      return { label: 'EOD 日终回撤', cls: 'badge--positive' };
+    case 'intraday':
+      return { label: '日内尾随回撤', cls: 'badge--warning' };
+    case 'tdd':
+      return { label: 'TDD 追踪回撤', cls: 'badge--warning' };
+    case 'static':
+      return { label: '静态回撤', cls: 'badge--info' };
+    default:
+      return { label: '回撤未标注', cls: 'badge--neutral' };
+  }
+}
+
+function formatVpnLabel(policy: VpnPolicy, rawText: string | null): { label: string; cls: string } {
+  switch (policy) {
+    case 'allowed':
+      return { label: rawText ? `梯子: ${rawText}` : '允许使用梯子', cls: 'badge--positive' };
+    case 'conditional':
+      return { label: rawText ? `梯子: ${rawText}` : '梯子有条件限制', cls: 'badge--warning' };
+    case 'discouraged':
+      return { label: rawText ? `梯子: ${rawText}` : '建议不使用梯子', cls: 'badge--warning' };
+    case 'forbidden':
+      return { label: rawText ? `梯子: ${rawText}` : '严禁使用梯子', cls: 'badge--negative' };
+    default:
+      return { label: '梯子政策未标注', cls: 'badge--neutral' };
+  }
+}
+
+function formatCnLabel(support: TriState, rawText: string | null): { label: string; cls: string } {
+  switch (support) {
+    case 'yes':
+      return { label: rawText ? `大陆: ${rawText}` : '支持大陆直连', cls: 'badge--positive' };
+    case 'no':
+      return { label: rawText ? `大陆: ${rawText}` : '不支持中国大陆', cls: 'badge--negative' };
+    default:
+      return { label: '大陆支持未标注', cls: 'badge--neutral' };
+  }
+}
+
+export function createFirmsBoard(options: FirmsBoardOptions): FirmsBoardInstance {
+  let filters: FirmFilters = allFilters();
+  let opened = false;
+
+  const overlay = h('div', { class: 'drawer-overlay is-hidden', 'aria-hidden': 'true' });
+  const drawer = h('div', { class: 'drawer drawer--firms', role: 'dialog', 'aria-label': '机构选型看板' });
+
+  // 头部
+  const header = h('div', { class: 'drawer__header' }, [
+    h('div', { class: 'drawer__title-wrap' }, [
+      h('h2', { class: 'drawer__title', text: '自营交易机构选型看板' }),
+      h('p', { class: 'drawer__subtitle', text: '对比 22 家机构分成、回撤、VPN 与大陆政策，避坑防封' }),
+    ]),
+    h('button', {
+      class: 'btn btn--chip btn--close',
+      type: 'button',
+      'aria-label': '关闭',
+      html: '✕ 关闭',
+    }),
+  ]);
+
+  header.querySelector('.btn--close')?.addEventListener('click', () => closeDrawer());
+
+  // 筛选区
+  const filterSection = h('div', { class: 'drawer__filters' });
+
+  function renderFilterGroup(
+    dimension: FilterDimension,
+    title: string,
+    values: readonly string[],
+    labels: Record<string, string>,
+  ): HTMLElement {
+    const counts = countByDimension(dimension);
+    const wrap = h('div', { class: 'filter-group' }, [
+      h('span', { class: 'filter-group__label', text: title }),
+    ]);
+
+    const chipsWrap = h('div', { class: 'filter-group__chips' });
+    for (const val of values) {
+      const isSelected = (filters[dimension] as Set<string>).has(val);
+      const count = counts.get(val) ?? 0;
+      const chip = h(
+        'button',
+        {
+          class: `filter-chip ${isSelected ? 'is-active' : ''}`,
+          type: 'button',
+        },
+        [
+          h('span', { class: 'filter-chip__text', text: labels[val] || val }),
+          h('span', { class: 'filter-chip__count', text: String(count) }),
+        ],
+      );
+
+      chip.addEventListener('click', () => {
+        filters = toggleFilterValue(filters, dimension, val);
+        renderFilters();
+        renderCards();
+      });
+
+      chipsWrap.append(chip);
+    }
+
+    wrap.append(chipsWrap);
+    return wrap;
+  }
+
+  function renderFilters(): void {
+    filterSection.replaceChildren(
+      renderFilterGroup('drawdown', '回撤类型', ['eod', 'intraday', 'tdd', 'static', 'unknown'], {
+        eod: 'EOD 日终',
+        intraday: '日内尾随',
+        tdd: 'TDD 追踪',
+        static: '静态回撤',
+        unknown: '未标注',
+      }),
+      renderFilterGroup('vpn', '梯子/VPN', ['allowed', 'conditional', 'discouraged', 'forbidden', 'unknown'], {
+        allowed: '允许',
+        conditional: '有条件',
+        discouraged: '不建议',
+        forbidden: '严禁',
+        unknown: '未标注',
+      }),
+      renderFilterGroup('cn', '大陆用户', ['yes', 'no', 'unknown'], {
+        yes: '明确支持',
+        no: '明确不支持',
+        unknown: '未标注 (19家)',
+      }),
+    );
+  }
+
+  // 卡片容器
+  const statusMeta = h('div', { class: 'drawer__status-meta' });
+  const cardsGrid = h('div', { class: 'firms-grid' });
+
+  function renderCards(): void {
+    const list = filterFirms(filters);
+    statusMeta.replaceChildren(
+      h('span', {
+        class: 'drawer__count-info',
+        text: `显示 ${list.length} / 21 家机构（空卡 p1futures 已自动折叠）`,
+      }),
+      h('button', {
+        class: 'btn btn--text',
+        type: 'button',
+        text: '重置所有筛选',
+      }),
+    );
+
+    statusMeta.querySelector('.btn--text')?.addEventListener('click', () => {
+      filters = allFilters();
+      renderFilters();
+      renderCards();
+    });
+
+    if (list.length === 0) {
+      cardsGrid.replaceChildren(
+        h('div', { class: 'empty-state' }, [
+          h('p', { class: 'empty-state__title', text: '未找到符合条件的机构' }),
+          h('p', { class: 'empty-state__hint', text: '请尝试放宽筛选条件（例如取消勾选或点击“重置所有筛选”）' }),
+        ]),
+      );
+      return;
+    }
+
+    const cards: HTMLElement[] = [];
+    for (const firm of list) {
+      const dd = formatDrawdownLabel(firm.drawdownType);
+      const vpn = formatVpnLabel(firm.vpnPolicy, firm.raw.vpnPolicy);
+      const cn = formatCnLabel(firm.cnSupport, firm.raw.cnSupport);
+
+      // 分成显示
+      let splitText = '分成未标注';
+      if (firm.profitSplit) {
+        splitText =
+          firm.profitSplit.min === firm.profitSplit.max
+            ? `${firm.profitSplit.min}% 分成`
+            : `${firm.profitSplit.min}%~${firm.profitSplit.max}% 分成`;
+      } else if (firm.raw.profitSplit) {
+        splitText = firm.raw.profitSplit;
+      }
+
+      // 账号上限
+      const maxText = firm.maxAccounts
+        ? `上限: ${firm.maxAccounts} 个号`
+        : firm.raw.maxAccounts
+          ? `上限: ${firm.raw.maxAccounts}`
+          : '上限未标注';
+
+      const card = h('div', { class: 'firm-card' }, [
+        h('div', { class: 'firm-card__header' }, [
+          h('div', { class: 'firm-card__name-wrap' }, [
+            h('h3', { class: 'firm-card__name', text: firm.name }),
+            h('a', {
+              class: 'firm-card__link',
+              href: firm.sourceUrl,
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              text: '规则页 ↗',
+            }),
+          ]),
+          h('span', { class: 'firm-card__split', text: splitText }),
+        ]),
+        h('div', { class: 'firm-card__badges' }, [
+          h('span', { class: `badge ${dd.cls}`, text: dd.label }),
+          h('span', { class: `badge ${vpn.cls}`, text: vpn.label }),
+          h('span', { class: `badge ${cn.cls}`, text: cn.label }),
+          h('span', { class: 'badge badge--neutral', text: maxText }),
+        ]),
+      ]);
+
+      // 操作与预设联动
+      const actionArea = h('div', { class: 'firm-card__actions' });
+      if (firm.presetRefs.length > 0) {
+        if (firm.presetRefs.length === 1) {
+          const btn = h('button', {
+            class: 'btn btn--primary btn--sm',
+            type: 'button',
+            text: '⚡ 一键填入计算器',
+          });
+          btn.addEventListener('click', () => {
+            options.onApplyPreset(firm.presetRefs[0].id);
+            toast(`已载入 ${firm.name} 预设参数并重新测算`, 'success');
+            closeDrawer();
+            scrollFormIntoView();
+          });
+          actionArea.append(btn);
+        } else {
+          // 多条产品线
+          const multiWrap = h('div', { class: 'firm-card__presets-multi' }, [
+            h('span', { class: 'firm-card__presets-title', text: '可选产品预设：' }),
+          ]);
+          for (const ref of firm.presetRefs) {
+            const btn = h('button', {
+              class: 'btn btn--chip btn--sm',
+              type: 'button',
+              text: ref.id.replace(`${firm.slug}-`, '').toUpperCase(),
+            });
+            btn.addEventListener('click', () => {
+              options.onApplyPreset(ref.id);
+              toast(`已载入 ${firm.name} (${ref.id}) 参数`, 'success');
+              closeDrawer();
+              scrollFormIntoView();
+            });
+            multiWrap.append(btn);
+          }
+          actionArea.append(multiWrap);
+        }
+      } else {
+        const hintBtn = h('button', {
+          class: 'btn btn--outline btn--sm',
+          type: 'button',
+          text: '📝 ROI参数待核对（点击查看）',
+        });
+        hintBtn.addEventListener('click', () => {
+          const reason = firm.presetMappingNote || '该机构的具体产品参数（报名费、回撤金额）尚未核对，请参考规则页手工输入';
+          toast(`${firm.name}: ${reason}`, 'info', 4500);
+        });
+        actionArea.append(hintBtn);
+      }
+
+      card.append(actionArea);
+      cards.push(card);
+    }
+
+    cardsGrid.replaceChildren(...cards);
+  }
+
+  function scrollFormIntoView(): void {
+    const form = qs('#form-pane');
+    if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  const body = h('div', { class: 'drawer__body' }, [filterSection, statusMeta, cardsGrid]);
+  drawer.append(header, body);
+  overlay.append(drawer);
+  document.body.append(overlay);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeDrawer();
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && opened) closeDrawer();
+  });
+
+  function openDrawer(): void {
+    opened = true;
+    overlay.classList.remove('is-hidden');
+    document.body.style.overflow = 'hidden';
+    renderFilters();
+    renderCards();
+  }
+
+  function closeDrawer(): void {
+    opened = false;
+    overlay.classList.add('is-hidden');
+    document.body.style.overflow = '';
+  }
+
+  return {
+    open: openDrawer,
+    close: closeDrawer,
+    toggle: () => (opened ? closeDrawer() : openDrawer()),
+    isOpen: () => opened,
+  };
+}

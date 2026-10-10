@@ -107,4 +107,8 @@ export const en: Dict = {
   /* ---------- misc ---------- */
   placeholder: '--',
   barAriaLabel: 'Jump to the full results',
+
+  /* ---------- navigation & tools ---------- */
+  navFirmsBoard: 'Prop Firms Board',
+  navLookupModal: 'Fees & Specs',
 };

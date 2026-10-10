@@ -12,8 +12,10 @@ import { CUSTOM_PRESET_ID, createAppStore } from './state/store';
 import { createCompare } from './ui/compare';
 import { h, must, setText } from './ui/dom';
 import { downloadShareImage } from './ui/export-image';
+import { createFirmsBoard } from './ui/firms-board';
 import { createForm } from './ui/form';
 import { GITHUB_SVG, icon, LOGO_SVG } from './ui/icons';
+import { createLookupModal } from './ui/lookup-modal';
 import { createMetrics } from './ui/metrics';
 import { announce, toast } from './ui/toast';
 
@@ -456,6 +458,26 @@ must<HTMLElement>('#gh-icon').innerHTML = GITHUB_SVG;
 must<HTMLElement>('#form-pane').append(form.root);
 must<HTMLElement>('#metrics-host').append(metrics.root);
 must<HTMLElement>('#compare-host').append(compare.root);
+
+/* -------------------------------------------------------- firms board & modal */
+
+const firmsBoard = createFirmsBoard({
+  onApplyPreset: (presetId) => {
+    if (store.applyPreset(presetId)) {
+      form.write(store.get().inputs);
+    }
+  },
+});
+
+const lookupModal = createLookupModal();
+
+must<HTMLButtonElement>('#firms-board-btn').addEventListener('click', () => {
+  firmsBoard.open();
+});
+
+must<HTMLButtonElement>('#lookup-modal-btn').addEventListener('click', () => {
+  lookupModal.open();
+});
 
 applyTranslations();
 

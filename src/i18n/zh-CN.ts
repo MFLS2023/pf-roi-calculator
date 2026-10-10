@@ -111,6 +111,10 @@ export const zhCN = {
   /* ---------- misc ---------- */
   placeholder: '--',
   barAriaLabel: '跳转到完整结果区',
+
+  /* ---------- navigation & tools ---------- */
+  navFirmsBoard: '机构选型看板',
+  navLookupModal: '手续费与规格',
 } as const satisfies Record<string, string>;
 
 /** Canonical dictionary type — every locale file must satisfy it. */
